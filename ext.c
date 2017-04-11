@@ -2,10 +2,6 @@
 #include "config.h"
 #endif
 
-#include <string>
-#include <sstream>
-#include <iostream>
-
 #include "php.h"
 #include "php_ini.h"
 
@@ -20,7 +16,6 @@
 #define PHP_CAPSTONE_VERSION "3.0.0"
 #define PHP_CAPSTONE_EXTNAME "capstone"
 
-// xhp_rename_function
 PHP_FUNCTION(capstone_test)
 {
 	RETURN_TRUE;

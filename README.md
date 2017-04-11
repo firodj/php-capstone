@@ -59,3 +59,40 @@ Testing:
 ```
 $ Release_TS\php.exe -dextension=Release_TS\php_capstone.dll -r "echo capstone_test();"
 ```
+
+Install build tool on Linux/Mac:
+```
+$ phpize --clean
+$ phpize
+$ ./configure
+```
+
+Patch (C++ only):
+
+If you get error regarding `__ZNSt8ios_base4InitD1Ev` it is because the `libtool`
+using `gcc` instead `g++` compiler in which it doesn't link to `libstdc++`.
+Change the command produced in `Makefile` from `--mode=link $(CC)` into `--mode=link $(CXX)`
+on the rule `./capstone.la` (bottom).
+
+Build:
+```
+$ make
+```
+
+Make sure the `modules/capstone.so` linked with `libstdc++` (C++ only):
+```
+$ otool -L modules/capstone.so
+```
+
+Test:
+```
+$ make test
+```
+
+Install Mac:
+```
+$ make install
+$ echo "extension=capstone.so" > /usr/local/etc/php/7.0/conf.d/ext-capstone.ini
+$ brew services restart php70
+```
+
