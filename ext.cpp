@@ -1,5 +1,14 @@
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
+#include <string>
+#include <sstream>
+#include <iostream>
+
 #include "php.h"
 #include "php_ini.h"
+
 #include "zend.h"
 #include "zend_API.h"
 #include "zend_compile.h"
@@ -7,9 +16,6 @@
 #include "zend_hash.h"
 #include "zend_extensions.h"
 #include "ext/standard/info.h"
-#include <string>
-#include <sstream>
-#include <iostream>
 
 #define PHP_CAPSTONE_VERSION "3.0.0"
 #define PHP_CAPSTONE_EXTNAME "capstone"
@@ -18,6 +24,22 @@
 PHP_FUNCTION(capstone_test)
 {
 	RETURN_TRUE;
+}
+
+//
+// Extension entry
+static PHP_MINIT_FUNCTION(capstone) {
+	return SUCCESS;
+}
+
+static PHP_MSHUTDOWN_FUNCTION(capstone) {
+ 	return SUCCESS;
+}
+
+// phpinfo();
+static PHP_MINFO_FUNCTION(capstone) {
+	php_info_print_table_start();
+	php_info_print_table_end();
 }
 
 // Module description
@@ -38,3 +60,7 @@ zend_module_entry capstone_module_entry = {
   PHP_CAPSTONE_VERSION,
   STANDARD_MODULE_PROPERTIES
 };
+
+#ifdef COMPILE_DL_CAPSTONE
+ZEND_GET_MODULE(capstone)
+#endif

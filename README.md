@@ -57,5 +57,5 @@ Resource:
 Testing:
 
 ```
-$ C:\php-sdk\phpdev\vc14\x86\php-7.0.14-src> c:\php70\php.exe -dextension=Release_TS\php_xhp.dll -r "class xhp_x { function __toString() { return '1'; }}; echo <x/>;"
+$ Release_TS\php.exe -dextension=Release_TS\php_capstone.dll -r "echo capstone_test();"
 ```
