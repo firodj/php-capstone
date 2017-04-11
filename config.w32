@@ -1,0 +1,9 @@
+ARG_ENABLE("capstone", "Capstone support", "no");
+if (PHP_CAPSTONE != "no") {
+	if (CHECK_LIB("capstone.lib", "capstone", configure_module_dirname + "\\capstone")) {
+        EXTENSION("capstone", "ext.cpp", true);
+        ADD_FLAG("CFLAGS_CAPSTONE", "/EHsc /TP");
+    } else {
+       WARNING("capstone not enabled; libraries and headers not found");
+    }
+}
