@@ -1,3 +1,12 @@
+Compile Capstone:
+
+```
+$ mkdir capstone/build
+$ cd capstone/build
+$ cmake ..
+$ cmake --build . --config Release
+```
+
 Resource:
 
 * http://blog.benoitblanchon.fr/build-php-extension-on-windows/
