@@ -124,6 +124,8 @@ PHP_FUNCTION(cs_open)
 
     cs_handle = alloc_capstone_handle();
     cs_handle->handle = handle;
+    cs_handle->arch = (cs_arch)arch;
+    cs_handle->mode = (cs_mode)mode;
 
     RETURN_RES(zend_register_resource(cs_handle, le_capstone));
 }
@@ -228,6 +230,28 @@ PHP_FUNCTION(cs_option)
     if ((err = cs_option(cs_handle->handle, (cs_opt_type)type, value)) != CS_ERR_OK) {
         php_error_docref(NULL, E_WARNING, cs_strerror(err));
         RETURN_FALSE;
+    }
+
+    switch ((cs_opt_type)type) {
+        case CS_OPT_DETAIL:
+            if (value == CS_OPT_ON) {
+                cs_handle->opt_detail = 1;
+            } else if (value == CS_OPT_OFF) {
+                cs_handle->opt_detail = 0;
+            }
+            break;
+        case CS_OPT_SKIPDATA:
+            if (value == CS_OPT_ON) {
+                cs_handle->opt_skipdata = 1;
+            } else if (value == CS_OPT_OFF) {
+                cs_handle->opt_skipdata = 0;
+            }
+            break;
+        case CS_OPT_MODE:
+            cs_handle->mode = value;
+            break;
+        default:
+            break;
     }
 
     RETURN_TRUE;

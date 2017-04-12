@@ -27,6 +27,10 @@ PHP_FUNCTION(cs_option);
 
 typedef struct {
     csh handle;
+    cs_arch arch;
+    cs_mode mode;
+    zend_bool opt_detail;
+    zend_bool opt_skipdata;
 } php_capstone;
 
 #endif
