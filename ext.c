@@ -51,10 +51,18 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_cs_close, 0, ZEND_RETURN_VALUE, 1)
 	ZEND_ARG_INFO(0, handle)
 ZEND_END_ARG_INFO()
 
+ZEND_BEGIN_ARG_INFO_EX(arginfo_cs_disasm, 0, ZEND_RETURN_VALUE, 2)
+	ZEND_ARG_INFO(0, handle)
+	ZEND_ARG_INFO(0, code)
+	ZEND_ARG_INFO(0, address)
+	ZEND_ARG_INFO(0, count)
+ZEND_END_ARG_INFO()
+
 // Module description
 zend_function_entry capstone_functions[] = {
-  ZEND_FE(cs_open, NULL)
-  ZEND_FE(cs_close, NULL)
+  ZEND_FE(cs_open, arginfo_cs_open)
+  ZEND_FE(cs_close, arginfo_cs_close)
+  ZEND_FE(cs_disasm, arginfo_cs_disasm)
   {NULL, NULL, NULL}
 };
 
@@ -78,8 +86,12 @@ ZEND_GET_MODULE(capstone)
 void _php_capstone_close(zend_resource *rsrc)
 {
 	php_capstone *cs_handle = (php_capstone *) rsrc->ptr;
-	cs_close(&cs_handle->handle);
+	cs_err err = cs_close(&cs_handle->handle);
 	efree(cs_handle);
+
+    if (err != CS_ERR_OK) {
+        php_error_docref(NULL, E_WARNING, cs_strerror(err));
+    }
 }
 
 php_capstone *alloc_capstone_handle()
@@ -94,13 +106,15 @@ PHP_FUNCTION(cs_open)
     zend_long mode;
     csh handle;
     php_capstone *cs_handle;
+    cs_err err;
 
 	ZEND_PARSE_PARAMETERS_START(2, 2)
 		Z_PARAM_LONG(arch)
 		Z_PARAM_LONG(mode)
 	ZEND_PARSE_PARAMETERS_END();
 
-    if (cs_open((cs_arch)arch, (cs_mode)mode, &handle) != CS_ERR_OK) {
+    if ((err = cs_open((cs_arch)arch, (cs_mode)mode, &handle)) != CS_ERR_OK) {
+        php_error_docref(NULL, E_WARNING, cs_strerror(err));
         RETURN_NULL();
     }
 
@@ -126,3 +140,40 @@ PHP_FUNCTION(cs_close)
 	zend_list_close(Z_RES_P(zid));
 }
 
+PHP_FUNCTION(cs_disasm)
+{
+    zval *zid;
+    zend_string *code;
+    zend_long address = 0;
+    zend_long count = 0;
+    size_t disasm_count;
+    cs_insn *insn;
+    php_capstone *cs_handle;
+
+	ZEND_PARSE_PARAMETERS_START(2, 4)
+		Z_PARAM_RESOURCE(zid)
+        Z_PARAM_STR(code)
+        Z_PARAM_OPTIONAL
+        Z_PARAM_LONG(address)
+        Z_PARAM_LONG(count)
+	ZEND_PARSE_PARAMETERS_END();
+
+	if ((cs_handle = (php_capstone*)zend_fetch_resource(Z_RES_P(zid), le_capstone_name, le_capstone)) == NULL) {
+		RETURN_FALSE;
+	}
+
+    disasm_count = cs_disasm(cs_handle->handle, (const uint8_t*)ZSTR_VAL(code), ZSTR_LEN(code), address, count, &insn);
+
+    if (disasm_count > 0)
+    {
+      size_t j;
+    for (j = 0; j < disasm_count; j++) {
+          printf("0x%"PRIx64":\t%s\t\t%s\n", insn[j].address, insn[j].mnemonic,
+                  insn[j].op_str);
+      }
+
+      cs_free(insn, disasm_count);
+  } else
+      php_error_docref(NULL, E_WARNING, "Failed to disassemble given code!");
+ 
+}
