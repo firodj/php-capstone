@@ -162,18 +162,25 @@ PHP_FUNCTION(cs_disasm)
 		RETURN_FALSE;
 	}
 
+    array_init(return_value);
+
     disasm_count = cs_disasm(cs_handle->handle, (const uint8_t*)ZSTR_VAL(code), ZSTR_LEN(code), address, count, &insn);
 
     if (disasm_count > 0)
     {
-      size_t j;
-    for (j = 0; j < disasm_count; j++) {
-          printf("0x%"PRIx64":\t%s\t\t%s\n", insn[j].address, insn[j].mnemonic,
-                  insn[j].op_str);
-      }
+        size_t j;
+        zval instob;
 
-      cs_free(insn, disasm_count);
-  } else
-      php_error_docref(NULL, E_WARNING, "Failed to disassemble given code!");
- 
+        for (j = 0; j < disasm_count; j++) {
+            object_init(&instob);
+
+		    add_property_long(&instob, "address", insn[j].address);
+		    add_property_string(&instob, "mnemonic", insn[j].mnemonic);
+		    add_property_string(&instob, "op_str", insn[j].op_str);
+
+		    add_next_index_zval(return_value, &instob);
+        }
+
+        cs_free(insn, disasm_count);
+    }
 }
