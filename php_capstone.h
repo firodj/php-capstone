@@ -6,7 +6,10 @@
 
 #include <capstone.h>
 
-#define PHP_CAPSTONE_VERSION "3.0.0"
+#define _STR_HELPER(x) #x
+#define _STR(x) _STR_HELPER(x)
+
+#define PHP_CAPSTONE_VERSION _STR(CS_VERSION_MAJOR) "." _STR(CS_VERSION_MINOR) "." _STR(CS_VERSION_EXTRA)
 #define PHP_CAPSTONE_EXTNAME "capstone"
 
 extern int le_capstone;

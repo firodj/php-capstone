@@ -35,6 +35,8 @@ PHP_MSHUTDOWN_FUNCTION(capstone) {
 // phpinfo();
 PHP_MINFO_FUNCTION(capstone) {
     php_info_print_table_start();
+    php_info_print_table_row(2, "Capstone-Engine Support", "Enabled");
+    php_info_print_table_row(2, "Capstone Version", PHP_CAPSTONE_VERSION);
     php_info_print_table_end();
 }
 
