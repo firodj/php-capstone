@@ -89,6 +89,9 @@ foreach (collect_enums('x86.h') as $name=>$enums) {
         // Skip: INVALID
         if ($str == 'INVALID') continue;
 
+        // Transform
+        $str = strtr(strtolower($str), ["_" => "/"]);
+
         fprintf($output, "case %s: return \"%s\"; break;\n", $enum, $str);
     }
     fprintf($output, "default: break;\n} // switch\n");
