@@ -17,17 +17,13 @@
 
 int le_capstone;
 
-#define REGISTER_CAPSTONE_CONSTANT(__c) REGISTER_LONG_CONSTANT(#__c, __c, CONST_CS | CONST_PERSISTENT)
-
 //
 // Extension entry
 PHP_MINIT_FUNCTION(capstone) {
     le_capstone = zend_register_list_destructors_ex(_php_capstone_close, NULL,
         le_capstone_name, module_number);
 
-    REGISTER_CAPSTONE_CONSTANT(CS_ARCH_ARM);
-    REGISTER_CAPSTONE_CONSTANT(CS_ARCH_X86);
-    REGISTER_CAPSTONE_CONSTANT(CS_MODE_64);
+    php_capstone_register_constants(module_number);
 
 	return SUCCESS;
 }

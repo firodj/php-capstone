@@ -9,10 +9,11 @@
 #define PHP_CAPSTONE_VERSION "3.0.0"
 #define PHP_CAPSTONE_EXTNAME "capstone"
 
-int le_capstone;
+extern int le_capstone;
 #define le_capstone_name "Capstone"
 
-void _php_capstone_close(zend_resource *rsrc);
+void _php_capstone_close(zend_resource*);
+void php_capstone_register_constants(int);
 
 PHP_MINIT_FUNCTION(capstone);
 PHP_MSHUTDOWN_FUNCTION(capstone);
