@@ -6,53 +6,28 @@ Capstone Test
 $CODE = "\x55\x48\x8b\x05\xb8\x13\x00\x00";
 
 $ok = cs_support(CS_ARCH_ALL);
-var_dump($ok);
+printf("support:%d\n", $ok);
 
 $handle = cs_open(CS_ARCH_X86, CS_MODE_64);
 var_dump($handle);
 
 $ok = cs_option($handle, CS_OPT_DETAIL, CS_OPT_ON);
-var_dump($ok);
+printf("option:%d\n", $ok);
 
 $insn = cs_disasm($handle, $CODE, 0x1000);
-var_dump($insn);
+printf("count:%d\n", count($insn));
+
+foreach ($insn as $ins) {
+  echo json_encode($ins) . "\n";
+}
 
 $ok = cs_close($handle);
-var_dump($ok);
+printf("close:%d\n", $ok);
 --EXPECTF--
-bool(true)
+support:1
 resource(%d) of type (Capstone)
-bool(true)
-array(2) {
-  [0]=>
-  object(stdClass)#1 (6) {
-    ["id"]=>
-    int(580)
-    ["address"]=>
-    int(4096)
-    ["size"]=>
-    int(1)
-    ["bytes"]=>
-    string(1) "%s"
-    ["mnemonic"]=>
-    string(4) "push"
-    ["op_str"]=>
-    string(3) "rbp"
-  }
-  [1]=>
-  object(stdClass)#2 (6) {
-    ["id"]=>
-    int(442)
-    ["address"]=>
-    int(4097)
-    ["size"]=>
-    int(7)
-    ["bytes"]=>
-    string(7) "%s"
-    ["mnemonic"]=>
-    string(3) "mov"
-    ["op_str"]=>
-    string(29) "rax, qword ptr [rip + 0x13b8]"
-  }
-}
-bool(true)
+option:1
+count:2
+{"id":580,"address":4096,"mnemonic":"push","op_str":"rbp","bytes":[85],"regs_read":["rsp"],"regs_write":["rsp"],"groups":["mode64"],"prefix":[0,0,0,0],"opcode":[85,0,0,0],"rex":0,"addr_size":8,"modrm":0,"sib":0,"disp":0,"sib_index":0,"sib_scale":0,"sib_base":0,"avx_sae":false}
+{"id":442,"address":4097,"mnemonic":"mov","op_str":"rax, qword ptr [rip + 0x13b8]","bytes":[72,139,5,184,19,0,0],"regs_read":[],"regs_write":[],"groups":[],"prefix":[0,0,0,0],"opcode":[139,0,0,0],"rex":72,"addr_size":8,"modrm":5,"sib":0,"disp":5048,"sib_index":0,"sib_scale":0,"sib_base":0,"avx_sae":false}
+close:1

@@ -104,6 +104,55 @@ php_capstone *alloc_capstone_handle()
     return cs_handle;
 }
 
+
+void arch_detail_x86(zval *instob, cs_x86 *arch)
+{
+    int n;
+    zval info;
+    const char *name;
+
+    array_init(&info);
+    for (n=0; n<4; n++) {
+        name = php_capstone_x86_prefix_name(arch->prefix[n]);
+        if (name) {
+            add_next_index_string(&info, name);
+        } else {
+            add_next_index_long(&info, arch->prefix[n]);
+        }
+    }
+    add_property_zval(instob, "prefix", &info);
+
+    array_init(&info);
+    for (n=0; n<4; n++) {
+        add_next_index_long(&info, arch->opcode[n]);
+    }
+    add_property_zval(instob, "opcode", &info);
+
+    add_property_long(instob, "rex", arch->rex);
+    add_property_long(instob, "addr_size", arch->addr_size);
+    add_property_long(instob, "modrm", arch->modrm);
+    add_property_long(instob, "sib", arch->sib);
+    add_property_long(instob, "disp", arch->disp);
+
+    name = php_capstone_x86_reg_name(arch->sib_index);
+    if (name) {
+        add_property_string(instob, "sib_index", name);
+    } else {
+        add_property_long(instob, "sib_index", arch->sib_index);
+    }
+
+    add_property_long(instob, "sib_scale", arch->sib_scale);
+
+    name = php_capstone_x86_reg_name(arch->sib_base);
+    if (name) {
+        add_property_string(instob, "sib_base", name);
+    } else {
+        add_property_long(instob, "sib_base", arch->sib_base);
+    }
+
+    add_property_bool(instob, "avx_sae", arch->avx_sae);
+}
+
 PHP_FUNCTION(cs_open)
 {
     zend_long arch;
@@ -179,14 +228,52 @@ PHP_FUNCTION(cs_disasm)
         zval instob;
 
         for (j = 0; j < disasm_count; j++) {
+            cs_insn *ins = &(insn[j]);
+            zval detail;
+            int n;
+
             object_init(&instob);
 
-            add_property_long(&instob, "id", insn[j].id);
-            add_property_long(&instob, "address", insn[j].address);
-            add_property_long(&instob, "size", insn[j].size);
-            add_property_stringl(&instob, "bytes", (const char*)insn[j].bytes, insn[j].size);
-            add_property_string(&instob, "mnemonic", insn[j].mnemonic);
-            add_property_string(&instob, "op_str", insn[j].op_str);
+            add_property_long(&instob, "id", ins->id);
+            add_property_long(&instob, "address", ins->address);
+            add_property_string(&instob, "mnemonic", ins->mnemonic);
+            add_property_string(&instob, "op_str", ins->op_str);
+
+            array_init(&detail);
+            for (n = 0; n < ins->size; n++) {
+                add_next_index_long(&detail, ins->bytes[n]);
+            }
+            add_property_zval(&instob, "bytes", &detail);
+
+            if (cs_handle->opt_detail) {
+                // add_property_string(&instob, "name", cs_insn_name(cs_handle->handle, ins->id));
+
+                array_init(&detail);
+                for (n = 0; n < ins->detail->regs_read_count; n++) {
+                    add_next_index_string(&detail, cs_reg_name(cs_handle->handle, ins->detail->regs_read[n]));
+                }
+                add_property_zval(&instob, "regs_read", &detail);
+
+                array_init(&detail);
+                for (n = 0; n < ins->detail->regs_write_count; n++) {
+                    add_next_index_string(&detail, cs_reg_name(cs_handle->handle, ins->detail->regs_write[n]));
+                }
+                add_property_zval(&instob, "regs_write", &detail);
+
+                array_init(&detail);
+                for (n = 0; n < ins->detail->groups_count; n++) {
+                    add_next_index_string(&detail, cs_group_name(cs_handle->handle, ins->detail->groups[n]));
+                }
+                add_property_zval(&instob, "groups", &detail);
+
+                switch (cs_handle->arch) {
+                    case CS_ARCH_X86:
+                        arch_detail_x86(&instob, &ins->detail->x86);
+                        break;
+                    default:
+                        break;
+                }
+            }
 
             add_next_index_zval(return_value, &instob);
         }
