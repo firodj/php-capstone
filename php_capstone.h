@@ -22,6 +22,8 @@ PHP_MINFO_FUNCTION(capstone);
 PHP_FUNCTION(cs_open);
 PHP_FUNCTION(cs_close);
 PHP_FUNCTION(cs_disasm);
+PHP_FUNCTION(cs_support);
+PHP_FUNCTION(cs_option);
 
 typedef struct {
     csh handle;

@@ -25,33 +25,39 @@ PHP_MINIT_FUNCTION(capstone) {
 
     php_capstone_register_constants(module_number);
 
-	return SUCCESS;
+    return SUCCESS;
 }
 
 PHP_MSHUTDOWN_FUNCTION(capstone) {
- 	return SUCCESS;
+    return SUCCESS;
 }
 
 // phpinfo();
 PHP_MINFO_FUNCTION(capstone) {
-	php_info_print_table_start();
-	php_info_print_table_end();
+    php_info_print_table_start();
+    php_info_print_table_end();
 }
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_cs_open, 0, ZEND_RETURN_VALUE, 2)
-	ZEND_ARG_INFO(0, arch)
-	ZEND_ARG_INFO(0, mode)
+    ZEND_ARG_INFO(0, arch)
+    ZEND_ARG_INFO(0, mode)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_cs_close, 0, ZEND_RETURN_VALUE, 1)
-	ZEND_ARG_INFO(0, handle)
+    ZEND_ARG_INFO(0, handle)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_cs_disasm, 0, ZEND_RETURN_VALUE, 2)
-	ZEND_ARG_INFO(0, handle)
-	ZEND_ARG_INFO(0, code)
-	ZEND_ARG_INFO(0, address)
-	ZEND_ARG_INFO(0, count)
+    ZEND_ARG_INFO(0, handle)
+    ZEND_ARG_INFO(0, code)
+    ZEND_ARG_INFO(0, address)
+    ZEND_ARG_INFO(0, count)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_cs_option, 0, ZEND_RETURN_VALUE, 3)
+    ZEND_ARG_INFO(0, handle)
+    ZEND_ARG_INFO(0, type)
+    ZEND_ARG_INFO(0, value)
 ZEND_END_ARG_INFO()
 
 // Module description
@@ -59,6 +65,8 @@ zend_function_entry capstone_functions[] = {
   ZEND_FE(cs_open, arginfo_cs_open)
   ZEND_FE(cs_close, arginfo_cs_close)
   ZEND_FE(cs_disasm, arginfo_cs_disasm)
+  ZEND_FE(cs_support, arginfo_cs_close)
+  ZEND_FE(cs_option, arginfo_cs_option)
   {NULL, NULL, NULL}
 };
 
@@ -81,9 +89,9 @@ ZEND_GET_MODULE(capstone)
 
 void _php_capstone_close(zend_resource *rsrc)
 {
-	php_capstone *cs_handle = (php_capstone *) rsrc->ptr;
-	cs_err err = cs_close(&cs_handle->handle);
-	efree(cs_handle);
+    php_capstone *cs_handle = (php_capstone *) rsrc->ptr;
+    cs_err err = cs_close(&cs_handle->handle);
+    efree(cs_handle);
 
     if (err != CS_ERR_OK) {
         php_error_docref(NULL, E_WARNING, cs_strerror(err));
@@ -104,10 +112,10 @@ PHP_FUNCTION(cs_open)
     php_capstone *cs_handle;
     cs_err err;
 
-	ZEND_PARSE_PARAMETERS_START(2, 2)
-		Z_PARAM_LONG(arch)
-		Z_PARAM_LONG(mode)
-	ZEND_PARSE_PARAMETERS_END();
+    ZEND_PARSE_PARAMETERS_START(2, 2)
+        Z_PARAM_LONG(arch)
+        Z_PARAM_LONG(mode)
+    ZEND_PARSE_PARAMETERS_END();
 
     if ((err = cs_open((cs_arch)arch, (cs_mode)mode, &handle)) != CS_ERR_OK) {
         php_error_docref(NULL, E_WARNING, cs_strerror(err));
@@ -125,15 +133,16 @@ PHP_FUNCTION(cs_close)
     zval *zid;
     php_capstone *cs_handle;
 
-	ZEND_PARSE_PARAMETERS_START(1, 1)
-		Z_PARAM_RESOURCE(zid)
-	ZEND_PARSE_PARAMETERS_END();
+    ZEND_PARSE_PARAMETERS_START(1, 1)
+        Z_PARAM_RESOURCE(zid)
+    ZEND_PARSE_PARAMETERS_END();
 
-	if ((cs_handle = (php_capstone*)zend_fetch_resource(Z_RES_P(zid), le_capstone_name, le_capstone)) == NULL) {
-		RETURN_FALSE;
-	}
+    if ((cs_handle = (php_capstone*)zend_fetch_resource(Z_RES_P(zid), le_capstone_name, le_capstone)) == NULL) {
+        RETURN_FALSE;
+    }
 
-	zend_list_close(Z_RES_P(zid));
+    zend_list_close(Z_RES_P(zid));
+    RETURN_TRUE;
 }
 
 PHP_FUNCTION(cs_disasm)
@@ -146,17 +155,17 @@ PHP_FUNCTION(cs_disasm)
     cs_insn *insn;
     php_capstone *cs_handle;
 
-	ZEND_PARSE_PARAMETERS_START(2, 4)
-		Z_PARAM_RESOURCE(zid)
+    ZEND_PARSE_PARAMETERS_START(2, 4)
+        Z_PARAM_RESOURCE(zid)
         Z_PARAM_STR(code)
         Z_PARAM_OPTIONAL
         Z_PARAM_LONG(address)
         Z_PARAM_LONG(count)
-	ZEND_PARSE_PARAMETERS_END();
+    ZEND_PARSE_PARAMETERS_END();
 
-	if ((cs_handle = (php_capstone*)zend_fetch_resource(Z_RES_P(zid), le_capstone_name, le_capstone)) == NULL) {
-		RETURN_FALSE;
-	}
+    if ((cs_handle = (php_capstone*)zend_fetch_resource(Z_RES_P(zid), le_capstone_name, le_capstone)) == NULL) {
+        RETURN_FALSE;
+    }
 
     array_init(return_value);
 
@@ -170,13 +179,56 @@ PHP_FUNCTION(cs_disasm)
         for (j = 0; j < disasm_count; j++) {
             object_init(&instob);
 
-		    add_property_long(&instob, "address", insn[j].address);
-		    add_property_string(&instob, "mnemonic", insn[j].mnemonic);
-		    add_property_string(&instob, "op_str", insn[j].op_str);
+            add_property_long(&instob, "id", insn[j].id);
+            add_property_long(&instob, "address", insn[j].address);
+            add_property_long(&instob, "size", insn[j].size);
+            add_property_stringl(&instob, "bytes", (const char*)insn[j].bytes, insn[j].size);
+            add_property_string(&instob, "mnemonic", insn[j].mnemonic);
+            add_property_string(&instob, "op_str", insn[j].op_str);
 
-		    add_next_index_zval(return_value, &instob);
+            add_next_index_zval(return_value, &instob);
         }
 
         cs_free(insn, disasm_count);
     }
+}
+
+PHP_FUNCTION(cs_support)
+{
+    zend_long query;
+    ZEND_PARSE_PARAMETERS_START(1, 1)
+        Z_PARAM_LONG(query)
+    ZEND_PARSE_PARAMETERS_END();
+
+    if (cs_support(query)) {
+        RETURN_TRUE;
+    }
+
+    RETURN_FALSE;
+}
+
+PHP_FUNCTION(cs_option)
+{
+    zval *zid;
+    zend_long type;
+    zend_long value;
+    cs_err err;
+    php_capstone *cs_handle;
+
+    ZEND_PARSE_PARAMETERS_START(3, 3)
+        Z_PARAM_RESOURCE(zid)
+        Z_PARAM_LONG(type)
+        Z_PARAM_LONG(value)
+    ZEND_PARSE_PARAMETERS_END();
+
+    if ((cs_handle = (php_capstone*)zend_fetch_resource(Z_RES_P(zid), le_capstone_name, le_capstone)) == NULL) {
+        RETURN_FALSE;
+    }
+
+    if ((err = cs_option(cs_handle->handle, (cs_opt_type)type, value)) != CS_ERR_OK) {
+        php_error_docref(NULL, E_WARNING, cs_strerror(err));
+        RETURN_FALSE;
+    }
+
+    RETURN_TRUE;
 }
