@@ -330,7 +330,7 @@ PHP_FUNCTION(cs_disasm)
 
             object_init(&instob);
 
-            add_property_long(&instob, "id", ins->id);
+            // add_property_long(&instob, "id", ins->id);
             add_property_long(&instob, "address", ins->address);
             add_property_string(&instob, "mnemonic", ins->mnemonic);
             add_property_string(&instob, "op_str", ins->op_str);
