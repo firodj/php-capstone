@@ -106,11 +106,13 @@ php_capstone *alloc_capstone_handle()
     return cs_handle;
 }
 
-void arch_detail_x86(zval *instob, cs_x86 *arch)
+void arch_detail_x86(php_capstone *cs_handle, zval *pdetailob, cs_x86 *arch)
 {
     int n;
-    zval info;
+    zval info, archob;
     const char *name;
+
+    object_init(&archob);
 
     array_init(&info);
     for (n=0; n<4; n++) {
@@ -121,63 +123,66 @@ void arch_detail_x86(zval *instob, cs_x86 *arch)
             add_next_index_long(&info, arch->prefix[n]);
         }
     }
-    add_property_zval(instob, "prefix", &info);
+    add_property_zval(&archob, "prefix", &info);
 
     array_init(&info);
     for (n=0; n<4; n++) {
         add_next_index_long(&info, arch->opcode[n]);
     }
-    add_property_zval(instob, "opcode", &info);
+    add_property_zval(&archob, "opcode", &info);
 
-    add_property_long(instob, "rex", arch->rex);
-    add_property_long(instob, "addr_size", arch->addr_size);
-    add_property_long(instob, "modrm", arch->modrm);
-    add_property_long(instob, "sib", arch->sib);
-    add_property_long(instob, "disp", arch->disp);
+    add_property_long(&archob, "rex", arch->rex);
+    add_property_long(&archob, "addr_size", arch->addr_size);
+    add_property_long(&archob, "modrm", arch->modrm);
+    add_property_long(&archob, "sib", arch->sib);
+    add_property_long(&archob, "disp", arch->disp);
 
-    name = php_capstone_x86_reg_name(arch->sib_index);
-    if (name) {
-        add_property_string(instob, "sib_index", name);
-    } else {
-        add_property_long(instob, "sib_index", arch->sib_index);
-    }
+    if ((cs_handle->mode & CS_MODE_16) == 0) {
 
-    add_property_long(instob, "sib_scale", arch->sib_scale);
+        name = php_capstone_x86_reg_name(arch->sib_index);
+        if (name) {
+            add_property_string(&archob, "sib_index", name);
+        } else {
+            add_property_long(&archob, "sib_index", arch->sib_index);
+        }
 
-    name = php_capstone_x86_reg_name(arch->sib_base);
-    if (name) {
-        add_property_string(instob, "sib_base", name);
-    } else {
-        add_property_long(instob, "sib_base", arch->sib_base);
+        add_property_long(&archob, "sib_scale", arch->sib_scale);
+
+        name = php_capstone_x86_reg_name(arch->sib_base);
+        if (name) {
+            add_property_string(&archob, "sib_base", name);
+        } else {
+            add_property_long(&archob, "sib_base", arch->sib_base);
+        }
     }
 
     name = php_capstone_x86_sse_cc_name(arch->sse_cc);
     if (name) {
-        add_property_string(instob, "sse_cc", name);
+        add_property_string(&archob, "sse_cc", name);
     } else {
-        add_property_long(instob, "sse_cc", arch->sse_cc);
+        add_property_long(&archob, "sse_cc", arch->sse_cc);
     }
 
     name = php_capstone_x86_avx_cc_name(arch->avx_cc);
     if (name) {
-        add_property_string(instob, "avx_cc", name);
+        add_property_string(&archob, "avx_cc", name);
     } else {
-        add_property_long(instob, "avx_cc", arch->avx_cc);
+        add_property_long(&archob, "avx_cc", arch->avx_cc);
     }
 
-    add_property_bool(instob, "avx_sae", arch->avx_sae);
+    add_property_bool(&archob, "avx_sae", arch->avx_sae);
 
     name = php_capstone_x86_avx_rm_name(arch->avx_rm);
     if (name) {
-        add_property_string(instob, "avx_rm", name);
+        add_property_string(&archob, "avx_rm", name);
     } else {
-        add_property_long(instob, "avx_rm", arch->avx_rm);
+        add_property_long(&archob, "avx_rm", arch->avx_rm);
     }
 
     array_init(&info);
     for (n=0; n<arch->op_count; n++) {
         cs_x86_op *op = &arch->operands[n];
-        zval opob;
+        zval opob, memob;
 
         object_init(&opob);
 
@@ -201,29 +206,33 @@ void arch_detail_x86(zval *instob, cs_x86 *arch)
                 add_property_long(&opob, "imm", op->imm);
                 break;
             case X86_OP_MEM:
+                object_init(&memob);
+
                 name = php_capstone_x86_reg_name(op->mem.segment);
                 if (name) {
-                    add_property_string(&opob, "segment", name);
+                    add_property_string(&memob, "segment", name);
                 } else {
-                    add_property_long(&opob, "segment", op->mem.segment);
+                    add_property_long(&memob, "segment", op->mem.segment);
                 }
 
                 name = php_capstone_x86_reg_name(op->mem.base);
                 if (name) {
-                    add_property_string(&opob, "base", name);
+                    add_property_string(&memob, "base", name);
                 } else {
-                    add_property_long(&opob, "base", op->mem.base);
+                    add_property_long(&memob, "base", op->mem.base);
                 }
 
                 name = php_capstone_x86_reg_name(op->mem.index);
                 if (name) {
-                    add_property_string(&opob, "index", name);
+                    add_property_string(&memob, "index", name);
                 } else {
-                    add_property_long(&opob, "index", op->mem.index);
+                    add_property_long(&memob, "index", op->mem.index);
                 }
 
-                add_property_long(&opob, "scale", op->mem.scale);
-                add_property_long(&opob, "disp", op->mem.disp);
+                add_property_long(&memob, "scale", op->mem.scale);
+                add_property_long(&memob, "disp", op->mem.disp);
+
+                add_property_zval(&opob, "mem", &memob);
                 break;
             case X86_OP_FP:
                 add_property_double(&opob, "fp", op->fp);
@@ -246,7 +255,9 @@ void arch_detail_x86(zval *instob, cs_x86 *arch)
         add_next_index_zval(&info, &opob);
     }
 
-    add_property_zval(instob, "operands", &info);
+    add_property_zval(&archob, "operands", &info);
+
+    add_property_zval(pdetailob, "x86", &archob);
 }
 
 PHP_FUNCTION(cs_open)
@@ -325,50 +336,53 @@ PHP_FUNCTION(cs_disasm)
 
         for (j = 0; j < disasm_count; j++) {
             cs_insn *ins = &(insn[j]);
-            zval detail;
+            zval bytesar;
             int n;
 
             object_init(&instob);
 
-            // add_property_long(&instob, "id", ins->id);
             add_property_long(&instob, "address", ins->address);
             add_property_string(&instob, "mnemonic", ins->mnemonic);
             add_property_string(&instob, "op_str", ins->op_str);
 
-            array_init(&detail);
+            array_init(&bytesar);
             for (n = 0; n < ins->size; n++) {
-                add_next_index_long(&detail, ins->bytes[n]);
+                add_next_index_long(&bytesar, ins->bytes[n]);
             }
-            add_property_zval(&instob, "bytes", &detail);
+            add_property_zval(&instob, "bytes", &bytesar);
 
             if (cs_handle->opt_detail) {
-                // add_property_string(&instob, "name", cs_insn_name(cs_handle->handle, ins->id));
+                zval detailob, archob, regsar;
 
-                array_init(&detail);
+                object_init(&detailob);
+
+                array_init(&regsar);
                 for (n = 0; n < ins->detail->regs_read_count; n++) {
-                    add_next_index_string(&detail, cs_reg_name(cs_handle->handle, ins->detail->regs_read[n]));
+                    add_next_index_string(&regsar, cs_reg_name(cs_handle->handle, ins->detail->regs_read[n]));
                 }
-                add_property_zval(&instob, "regs_read", &detail);
+                add_property_zval(&detailob, "regs_read", &regsar);
 
-                array_init(&detail);
+                array_init(&regsar);
                 for (n = 0; n < ins->detail->regs_write_count; n++) {
-                    add_next_index_string(&detail, cs_reg_name(cs_handle->handle, ins->detail->regs_write[n]));
+                    add_next_index_string(&regsar, cs_reg_name(cs_handle->handle, ins->detail->regs_write[n]));
                 }
-                add_property_zval(&instob, "regs_write", &detail);
+                add_property_zval(&detailob, "regs_write", &regsar);
 
-                array_init(&detail);
+                array_init(&regsar);
                 for (n = 0; n < ins->detail->groups_count; n++) {
-                    add_next_index_string(&detail, cs_group_name(cs_handle->handle, ins->detail->groups[n]));
+                    add_next_index_string(&regsar, cs_group_name(cs_handle->handle, ins->detail->groups[n]));
                 }
-                add_property_zval(&instob, "groups", &detail);
+                add_property_zval(&detailob, "groups", &regsar);
 
                 switch (cs_handle->arch) {
                     case CS_ARCH_X86:
-                        arch_detail_x86(&instob, &ins->detail->x86);
+                        arch_detail_x86(cs_handle, &detailob, &ins->detail->x86);
                         break;
                     default:
                         break;
                 }
+
+                add_property_zval(&instob, "detail", &detailob);
             }
 
             add_next_index_zval(return_value, &instob);

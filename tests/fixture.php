@@ -165,3 +165,16 @@ $platforms = [
   ],
 
 ];
+
+function string_hex($bytes) {
+    if (is_string($bytes)) {
+        $bytes = unpack('C*', $bytes);
+    }
+    return implode(" ",
+        array_map(function($x) {
+            return is_int($x) ? sprintf("0x%02x", $x) : $x;
+            },
+            $bytes
+        )
+    );
+};
