@@ -9,13 +9,6 @@ $ cmake --build . --config Release
 
 ### For Win64
 
-CMake Need to adjust with adding these lines with `TARGET_NAME` are each
-`add_executable` and `add_library`.
-
-```
-set_target_properties(${TARGET_NAME} PROPERTIES STATIC_LIBRARY_FLAGS "/machine:x64")
-```
-
 ```
 $ cmake -G "Visual Studio 14 2015 Win64" ..
 ```
@@ -76,6 +69,7 @@ The generated file will be in `.\Release_TS` and `.\x64\Relase_TS` for Win64.
 ### Testing:
 
 ```
+$ echo extension_dir=C:\php-sdk\phpdev\vc14\x86\php-7.0.14-src\Release_TS >> Release_TS\php.ini
 $ echo extension=php_capstone.dll >> Release_TS\php.ini
 $ nmake test TESTS=C:\php-exts\capstone\tests
 ```
