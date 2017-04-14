@@ -4,7 +4,7 @@
 #include "php.h"
 #include "zend_smart_str.h"
 
-#include <capstone.h>
+#include <capstone/capstone.h>
 
 #define _STR_HELPER(x) #x
 #define _STR(x) _STR_HELPER(x)
@@ -16,15 +16,7 @@ extern int le_capstone;
 #define le_capstone_name "Capstone"
 
 void _php_capstone_close(zend_resource*);
-void php_capstone_register_constants(int);
-const char *php_capstone_x86_reg_name(x86_reg);
-const char *php_capstone_x86_op_type_name(x86_op_type);
-const char *php_capstone_x86_avx_bcast_name(x86_avx_bcast);
-const char *php_capstone_x86_sse_cc_name(x86_sse_cc);
-const char *php_capstone_x86_avx_cc_name(x86_avx_cc);
-const char *php_capstone_x86_avx_rm_name(x86_avx_rm);
-const char *php_capstone_x86_prefix_name(x86_prefix);
-
+#include "const.inc"
 
 PHP_MINIT_FUNCTION(capstone);
 PHP_MSHUTDOWN_FUNCTION(capstone);
@@ -35,6 +27,7 @@ PHP_FUNCTION(cs_close);
 PHP_FUNCTION(cs_disasm);
 PHP_FUNCTION(cs_support);
 PHP_FUNCTION(cs_option);
+PHP_FUNCTION(cs_version);
 
 typedef struct {
     csh handle;

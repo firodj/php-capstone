@@ -4,7 +4,7 @@ Capstone Test
 --FILE--
 <?php
 
-$X86_CODE64 = "\x55\x48\x8b\x05\xb8\x13\x00\x00";
+$X86_CODE64 = "\x55\x48\x8b\x05\xb8\x13\x00\x00\x8f\xe8\x60\xcd\xe2\x07";
 $X86_CODE16 = "\x8d\x4c\x32\x08\x01\xd8\x81\xc6\x34\x12\x00\x00\x05\x23\x01\x00\x00\x36\x8b\x84\x91\x23\x01\x00\x00\x41\x8d\x84\x39\x89\x67\x00\x00\x8d\x87\x89\x67\x00\x00\xb4\xc6";
 $X86_CODE32 = "\x8d\x4c\x32\x08\x01\xd8\x81\xc6\x34\x12\x00\x00\x05\x23\x01\x00\x00\x36\x8b\x84\x91\x23\x01\x00\x00\x41\x8d\x84\x39\x89\x67\x00\x00\x8d\x87\x89\x67\x00\x00\xb4\xc6";
 
@@ -42,105 +42,18 @@ foreach($platforms as $platform) {
     }
     cs_option($handle, CS_OPT_DETAIL, CS_OPT_ON);
 
-    printf("Code: %s\n", string_hex($platform[2]));
+    printf("code: %s\n", string_hex($platform[2]));
 
-    printf("Disasm:\n");
+    printf("disasm:\n");
     $insn = cs_disasm($handle, $platform[2], 0x1000);
 
     foreach ($insn as $ins) {
-        printf("0x%x:\t%s\t%s\n",
-            $ins->address, $ins->mnemonic, $ins->op_str);
+        print_ins($ins);
 
         $x86 = &$ins->detail->x86;
-
-        printf("\tPrefix: %s\n", string_hex($x86->prefix));
-        printf("\tOpcode: %s\n", string_hex($x86->opcode));
-
-        printf("\trex: 0x%x\n", $x86->rex);
-
-        printf("\taddr_size: %u\n", $x86->addr_size);
-        printf("\tmodrm: 0x%x\n", $x86->modrm);
-        printf("\tdisp: 0x%x\n", $x86->disp);
-
-        if (($platform[1] & CS_MODE_16) == 0) {
-            printf("\tsib: 0x%x\n", $x86->sib);
-            if ($x86->sib_base)
-                printf("\t\tsib_base: %s\n", $x86->sib_base);
-            if ($x86->sib_index)
-                printf("\t\tsib_index: %s\n", $x86->sib_index);
-            if ($x86->sib_scale)
-                printf("\t\tsib_scale: %d\n", $x86->sib_scale);
-        }
-
-
-        // SSE code condition
-        if ($x86->sse_cc) {
-            printf("\tsse_cc: %u\n", $x86->sse_cc);
-        }
-
-        // AVX code condition
-        if ($x86->avx_cc) {
-            printf("\tavx_cc: %u\n", $x86->avx_cc);
-        }
-
-        // AVX Suppress All Exception
-        if ($x86->avx_sae) {
-            printf("\tavx_sae: %u\n", $x86->avx_sae);
-        }
-
-        // AVX Rounding Mode
-        if ($x86->avx_rm) {
-            printf("\tavx_rm: %u\n", $x86->avx_rm);
-        }
-
-        printf("\top_count: %u\n", count($x86->operands));
-        foreach ($x86->operands as $i => $op) {
-            switch($op->type) {
-                case 'reg': // X86_OP_REG
-                    printf("\t\toperands[%u].type: REG = %s\n", $i, $op->reg);
-                    break;
-                case 'imm': // X86_OP_IMM
-                    printf("\t\toperands[%u].type: IMM = 0x%x\n", $i, $op->imm);
-                    break;
-                case 'mem': // X86_OP_MEM
-                    printf("\t\toperands[%u].type: MEM\n", $i);
-                    if ($op->mem->segment)
-                        printf("\t\t\toperands[%u].mem.segment: REG = %s\n", $i, $op->mem->segment);
-                    if ($op->mem->base)
-                        printf("\t\t\toperands[%u].mem.base: REG = %s\n", $i, $op->mem->base);
-                    if ($op->mem->index)
-                        printf("\t\t\toperands[%u].mem.index: REG = %s\n", $i, $op->mem->index);
-                    if ($op->mem->scale != 1)
-                        printf("\t\t\toperands[%u].mem.scale: %u\n", $i, $op->mem->scale);
-                    if ($op->mem->disp != 0)
-                        printf("\t\t\toperands[%u].mem.disp: 0x%x\n", $i, $op->mem->disp);
-                    break;
-                case 'fp': // X86_OP_FP
-                    printf("\t\toperands[%u].type: FP = %f\n", $i, $op->fp);
-                    break;
-                default:
-                    break;
-            }
-
-            // AVX broadcast type
-            if ($op->avx_bcast)
-                printf("\t\toperands[%u].avx_bcast: %u\n", $i, $op->avx_bcast);
-
-            // AVX zero opmask {z}
-            if ($op->avx_zero_opmask)
-                printf("\t\toperands[%u].avx_zero_opmask: TRUE\n", $i);
-
-            printf("\t\toperands[%u].size: %u\n", $i, $op->size);
-        }
+        print_x86_detail($x86);
 
         printf("\n");
-
-
-
-
-
-
-
     }
 
     printf("0x%x:\n", $ins->address + count($ins->bytes));

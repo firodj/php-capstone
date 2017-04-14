@@ -69,6 +69,7 @@ zend_function_entry capstone_functions[] = {
   ZEND_FE(cs_disasm, arginfo_cs_disasm)
   ZEND_FE(cs_support, arginfo_cs_close)
   ZEND_FE(cs_option, arginfo_cs_option)
+  ZEND_FE(cs_version, NULL)
   {NULL, NULL, NULL}
 };
 
@@ -106,9 +107,91 @@ php_capstone *alloc_capstone_handle()
     return cs_handle;
 }
 
+void arch_detail_x86_op(php_capstone *cs_handle, zval *poperandsar, cs_x86_op *op)
+{
+    const char *name;
+    zval opob, memob;
+
+    object_init(&opob);
+
+    name = php_capstone_x86_op_type_name(op->type);
+    if (name) {
+        add_property_string(&opob, "type", name);
+    } else {
+        add_property_long(&opob, "type", op->type);
+    }
+
+    switch (op->type) {
+        case X86_OP_REG:
+            name = php_capstone_x86_reg_name(op->reg);
+            if (name) {
+                add_property_string(&opob, "reg", name);
+            } else {
+                add_property_long(&opob, "reg", op->reg);
+            }
+            break;
+        case X86_OP_IMM:
+            add_property_long(&opob, "imm", op->imm);
+            break;
+        case X86_OP_MEM:
+            object_init(&memob);
+
+            name = php_capstone_x86_reg_name(op->mem.segment);
+            if (name) {
+                add_property_string(&memob, "segment", name);
+            } else {
+                add_property_long(&memob, "segment", op->mem.segment);
+            }
+
+            name = php_capstone_x86_reg_name(op->mem.base);
+            if (name) {
+                add_property_string(&memob, "base", name);
+            } else {
+                add_property_long(&memob, "base", op->mem.base);
+            }
+
+            name = php_capstone_x86_reg_name(op->mem.index);
+            if (name) {
+                add_property_string(&memob, "index", name);
+            } else {
+                add_property_long(&memob, "index", op->mem.index);
+            }
+
+            add_property_long(&memob, "scale", op->mem.scale);
+            add_property_long(&memob, "disp", op->mem.disp);
+
+            add_property_zval(&opob, "mem", &memob);
+            break;
+        default:
+            break;
+    }
+
+    add_property_long(&opob, "size", op->size);
+
+    array_init(&memob);
+    if ((op->access & CS_AC_READ) != 0) {
+      add_next_index_string(&memob, "read");
+    }
+    if ((op->access & CS_AC_WRITE) != 0) {
+      add_next_index_string(&memob, "write");
+    }
+    add_property_zval(&opob, "access", &memob);
+
+    name = php_capstone_x86_avx_bcast_name(op->avx_bcast);
+    if (name) {
+        add_property_string(&opob, "avx_bcast", name);
+    } else {
+        add_property_long(&opob, "avx_bcast", op->avx_bcast);
+    }
+
+    add_property_bool(&opob, "avx_zero_opmask", op->avx_zero_opmask);
+
+    add_next_index_zval(poperandsar, &opob);
+}
+
 void arch_detail_x86(php_capstone *cs_handle, zval *pdetailob, cs_x86 *arch)
 {
-    int n;
+    int n, m;
     zval info, archob;
     const char *name;
 
@@ -116,6 +199,7 @@ void arch_detail_x86(php_capstone *cs_handle, zval *pdetailob, cs_x86 *arch)
 
     array_init(&info);
     for (n=0; n<4; n++) {
+        if (!arch->prefix[n]) continue;
         name = php_capstone_x86_prefix_name(arch->prefix[n]);
         if (name) {
             add_next_index_string(&info, name);
@@ -126,7 +210,8 @@ void arch_detail_x86(php_capstone *cs_handle, zval *pdetailob, cs_x86 *arch)
     add_property_zval(&archob, "prefix", &info);
 
     array_init(&info);
-    for (n=0; n<4; n++) {
+    for (m=4; m>1 && (!arch->opcode[m-1]); m--) ;
+    for (n=0; n<m; n++) {
         add_next_index_long(&info, arch->opcode[n]);
     }
     add_property_zval(&archob, "opcode", &info);
@@ -156,6 +241,13 @@ void arch_detail_x86(php_capstone *cs_handle, zval *pdetailob, cs_x86 *arch)
         }
     }
 
+    name = php_capstone_x86_xop_cc_name(arch->xop_cc);
+    if (name) {
+        add_property_string(&archob, "xop_cc", name);
+    } else {
+        add_property_long(&archob, "xop_cc", arch->xop_cc);
+    }
+
     name = php_capstone_x86_sse_cc_name(arch->sse_cc);
     if (name) {
         add_property_string(&archob, "sse_cc", name);
@@ -182,79 +274,8 @@ void arch_detail_x86(php_capstone *cs_handle, zval *pdetailob, cs_x86 *arch)
     array_init(&info);
     for (n=0; n<arch->op_count; n++) {
         cs_x86_op *op = &arch->operands[n];
-        zval opob, memob;
-
-        object_init(&opob);
-
-        name = php_capstone_x86_op_type_name(op->type);
-        if (name) {
-            add_property_string(&opob, "type", name);
-        } else {
-            add_property_long(&opob, "type", op->type);
-        }
-
-        switch (op->type) {
-            case X86_OP_REG: 
-                name = php_capstone_x86_reg_name(op->reg);
-                if (name) {
-                    add_property_string(&opob, "reg", name);
-                } else {
-                    add_property_long(&opob, "reg", op->reg);
-                }
-                break;
-            case X86_OP_IMM:
-                add_property_long(&opob, "imm", op->imm);
-                break;
-            case X86_OP_MEM:
-                object_init(&memob);
-
-                name = php_capstone_x86_reg_name(op->mem.segment);
-                if (name) {
-                    add_property_string(&memob, "segment", name);
-                } else {
-                    add_property_long(&memob, "segment", op->mem.segment);
-                }
-
-                name = php_capstone_x86_reg_name(op->mem.base);
-                if (name) {
-                    add_property_string(&memob, "base", name);
-                } else {
-                    add_property_long(&memob, "base", op->mem.base);
-                }
-
-                name = php_capstone_x86_reg_name(op->mem.index);
-                if (name) {
-                    add_property_string(&memob, "index", name);
-                } else {
-                    add_property_long(&memob, "index", op->mem.index);
-                }
-
-                add_property_long(&memob, "scale", op->mem.scale);
-                add_property_long(&memob, "disp", op->mem.disp);
-
-                add_property_zval(&opob, "mem", &memob);
-                break;
-            case X86_OP_FP:
-                add_property_double(&opob, "fp", op->fp);
-                break;
-            default:
-                break;
-        }
-
-        add_property_long(&opob, "size", op->size);
-
-        name = php_capstone_x86_avx_bcast_name(op->avx_bcast);
-        if (name) {
-            add_property_string(&opob, "avx_bcast", name);
-        } else {
-            add_property_long(&opob, "avx_bcast", op->avx_bcast);
-        }
-
-        add_property_bool(&opob, "avx_zero_opmask", op->avx_zero_opmask);
-
-        add_next_index_zval(&info, &opob);
+        arch_detail_x86_op(cs_handle, &info, op);
     }
-
     add_property_zval(&archob, "operands", &info);
 
     add_property_zval(pdetailob, "x86", &archob);
@@ -452,4 +473,9 @@ PHP_FUNCTION(cs_option)
     }
 
     RETURN_TRUE;
+}
+
+PHP_FUNCTION(cs_version)
+{
+    ZVAL_STRINGL(return_value, estrdup(PHP_CAPSTONE_VERSION), strlen(PHP_CAPSTONE_VERSION));
 }

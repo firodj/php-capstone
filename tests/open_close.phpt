@@ -3,8 +3,9 @@ Capstone Test
 --INI--
 --FILE--
 <?php
-$ok = cs_support(CS_ARCH_ALL);
-printf("support:%d\n", $ok);
+printf("version:%s\n", cs_version());
+$ok = cs_support(CS_ARCH_X86);
+printf("support x86:%d\n", $ok);
 
 $handle = cs_open(CS_ARCH_X86, CS_MODE_64);
 var_dump($handle);
@@ -15,7 +16,8 @@ printf("option:%d\n", $ok);
 $ok = cs_close($handle);
 printf("close:%d\n", $ok);
 --EXPECTF--
-support:1
+version:4.0.0
+support x86:1
 resource(%d) of type (Capstone)
 option:1
 close:1
