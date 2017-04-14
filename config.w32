@@ -1,7 +1,7 @@
 ARG_ENABLE("capstone", "Capstone support", "no");
 if (PHP_CAPSTONE != "no") {
 	if (CHECK_LIB("capstone.lib", "capstone", configure_module_dirname + "\\capstone\\build\\Release")) {
-        CHECK_HEADER_ADD_INCLUDE("capstone/include/capstone.h", "CFLAGS_CAPSTONE");
+        CHECK_HEADER_ADD_INCLUDE("capstone/capstone.h", "CFLAGS_CAPSTONE", configure_module_dirname + "\\capstone\\include");
         EXTENSION("capstone", "ext.c const.c", true);
         ADD_FLAG("CFLAGS_CAPSTONE", "/D CAPSTONE_STATIC");
         // ADD_FLAG("CFLAGS_CAPSTONE", "/EHsc /TP");

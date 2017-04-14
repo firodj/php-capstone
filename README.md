@@ -1,4 +1,4 @@
-Compile Capstone:
+## Compile Capstone:
 
 ```
 $ mkdir capstone/build
@@ -7,10 +7,14 @@ $ cmake ..
 $ cmake --build . --config Release
 ```
 
+## Compile Capstone PHP on Windows:
+
 Resource:
 
 * http://blog.benoitblanchon.fr/build-php-extension-on-windows/
 * https://wiki.php.net/internals/windows/stepbystepbuild
+
+Step:
 
 1. Install **Visual Studio 2015**.
 2. Open **VS2015 x86 Native Tools Command Prompt**.
@@ -54,27 +58,31 @@ Resource:
    $ nmake php_capstone.dll
    ```
 
-Testing:
+The generated file will be in `.\Release_TS`
+
+### Testing:
 
 ```
-$ Release_TS\php.exe -dextension=Release_TS\php_capstone.dll -r "echo capstone_test();"
+$ echo extension=php_capstone.dll >> Release_TS\php.ini
+$ nmake test TESTS=C:\php-exts\capstone\tests
 ```
 
-Install build tool on Linux/Mac:
+## Compile Capstone PHP on Linux/Mac:
+
 ```
 $ phpize --clean
 $ phpize
 $ ./configure
 ```
 
-Patch (C++ only):
+### Patch (C++ only) on Mac:
 
 If you get error regarding `__ZNSt8ios_base4InitD1Ev` it is because the `libtool`
 using `gcc` instead `g++` compiler in which it doesn't link to `libstdc++`.
 Change the command produced in `Makefile` from `--mode=link $(CC)` into `--mode=link $(CXX)`
 on the rule `./capstone.la` (bottom).
 
-Build:
+### Build:
 ```
 $ make
 ```
@@ -84,12 +92,12 @@ Make sure the `modules/capstone.so` linked with `libstdc++` (C++ only):
 $ otool -L modules/capstone.so
 ```
 
-Test:
+### Test:
 ```
 $ make test
 ```
 
-Install Mac:
+### Install:
 ```
 $ make install
 $ echo "extension=capstone.so" > /usr/local/etc/php/7.0/conf.d/ext-capstone.ini
