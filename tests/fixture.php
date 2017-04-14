@@ -158,8 +158,9 @@ function string_hex($bytes) {
 
 function print_ins($ins)
 {
-    printf("0x%x:\t%s\t%s\n",
-        $ins->address, $ins->mnemonic, $ins->op_str);
+    printf("0x%x:\t%s", $ins->address, $ins->mnemonic);
+    if ($ins->op_str) printf("\t\t%s", $ins->op_str);
+    printf("\n");
 
     printf("bytes:\t%s\n", string_hex($ins->bytes));
     printf("\tsize: %s\n", count($ins->bytes));
@@ -224,7 +225,12 @@ function print_x86_detail($x86)
         printf("\tavx_rm: %u\n", $x86->avx_rm);
     }
 
-    printf("\teflags: %s\n", json_encode($x86->eflags));
+    printf("\teflags:\n");
+    foreach($x86->eflags as $ops => $flags) {
+        if ($flags) {
+            printf("\t\t%s: %s\n", $ops, implode(' ', $flags));
+        }
+    }
 
     printf("\top_count: %u\n", count($x86->operands));
     foreach ($x86->operands as $i => $op) {
