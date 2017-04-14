@@ -224,6 +224,8 @@ function print_x86_detail($x86)
         printf("\tavx_rm: %u\n", $x86->avx_rm);
     }
 
+    printf("\teflags: %s\n", json_encode($x86->eflags));
+
     printf("\top_count: %u\n", count($x86->operands));
     foreach ($x86->operands as $i => $op) {
         switch($op->type) {

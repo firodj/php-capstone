@@ -41,6 +41,24 @@ function collect_enums($filename) {
     return $results;
 }
 
+function collect_defines($filename)
+{
+    $results = [];
+
+    $file = fopen(__DIR__.'/capstone/include/capstone/'.$filename, 'r');
+    while(!feof($file)) {
+        $line = fgets($file);
+
+        if (preg_match('/^#define (\w+) (.+)$/', $line, $match)) {
+            $results[$match[1]] = $match[2];
+        }
+    }
+    fclose($file);
+
+    return $results;
+}
+
+
 ///////////////////////////////////////////////////////////////////////////////
 //
 
@@ -112,6 +130,59 @@ foreach (collect_enums('x86.h') as $name=>$enums) {
     fprintf($output, "default: break;\n} // switch\n");
     fprintf($output, "return NULL;\n} // %s\n\n", $name);
 }
+
+///////
+
+$eflags_states = ['modify', 'prior', 'reset', 'set', 'test', 'undefined'];
+$max = count($eflags_states);
+
+fprintf($header, "void php_capstone_x86_eflags(zval*, uint64_t);\n");
+fprintf($output, <<<SCRIPT
+void php_capstone_x86_eflags(zval *peflagsob, uint64_t eflags)
+{
+    zval statesar[$max];
+
+SCRIPT
+);
+
+foreach($eflags_states as $idx=>$state) {
+    fprintf($output, <<<SCRIPT
+    array_init(&statesar[$idx]); // $state
+
+SCRIPT
+    );
+}
+
+foreach(collect_defines('x86.h') as $name=>$value) {
+    if (preg_match('/^X86_EFLAGS_([A-Z]+)_([A-Z]+)/', $name, $match)) {
+        $flag = strtolower($match[2]);
+        $idx = array_search(strtolower($match[1]), $eflags_states);
+
+        if ($idx === false) continue;
+
+        fprintf($output, <<<SCRIPT
+    if (eflags & $name) add_next_index_string(&statesar[$idx], "$flag");
+
+SCRIPT
+        );
+    }
+}
+
+foreach($eflags_states as $idx=>$state) {
+    fprintf($output, <<<SCRIPT
+    add_property_zval(peflagsob, "$state", &statesar[$idx]);
+
+SCRIPT
+    );
+}
+
+fprintf($output, <<<SCRIPT
+}
+
+SCRIPT
+);
+
+///////
 
 fclose($output);
 fclose($header);

@@ -478,3 +478,65 @@ default: break;
 return NULL;
 } // x86_prefix
 
+void php_capstone_x86_eflags(zval *peflagsob, uint64_t eflags)
+{
+    zval statesar[6];
+    array_init(&statesar[0]); // modify
+    array_init(&statesar[1]); // prior
+    array_init(&statesar[2]); // reset
+    array_init(&statesar[3]); // set
+    array_init(&statesar[4]); // test
+    array_init(&statesar[5]); // undefined
+    if (eflags & X86_EFLAGS_MODIFY_AF) add_next_index_string(&statesar[0], "af");
+    if (eflags & X86_EFLAGS_MODIFY_CF) add_next_index_string(&statesar[0], "cf");
+    if (eflags & X86_EFLAGS_MODIFY_SF) add_next_index_string(&statesar[0], "sf");
+    if (eflags & X86_EFLAGS_MODIFY_ZF) add_next_index_string(&statesar[0], "zf");
+    if (eflags & X86_EFLAGS_MODIFY_PF) add_next_index_string(&statesar[0], "pf");
+    if (eflags & X86_EFLAGS_MODIFY_OF) add_next_index_string(&statesar[0], "of");
+    if (eflags & X86_EFLAGS_MODIFY_TF) add_next_index_string(&statesar[0], "tf");
+    if (eflags & X86_EFLAGS_MODIFY_IF) add_next_index_string(&statesar[0], "if");
+    if (eflags & X86_EFLAGS_MODIFY_DF) add_next_index_string(&statesar[0], "df");
+    if (eflags & X86_EFLAGS_MODIFY_NT) add_next_index_string(&statesar[0], "nt");
+    if (eflags & X86_EFLAGS_MODIFY_RF) add_next_index_string(&statesar[0], "rf");
+    if (eflags & X86_EFLAGS_PRIOR_OF) add_next_index_string(&statesar[1], "of");
+    if (eflags & X86_EFLAGS_PRIOR_SF) add_next_index_string(&statesar[1], "sf");
+    if (eflags & X86_EFLAGS_PRIOR_ZF) add_next_index_string(&statesar[1], "zf");
+    if (eflags & X86_EFLAGS_PRIOR_AF) add_next_index_string(&statesar[1], "af");
+    if (eflags & X86_EFLAGS_PRIOR_PF) add_next_index_string(&statesar[1], "pf");
+    if (eflags & X86_EFLAGS_PRIOR_CF) add_next_index_string(&statesar[1], "cf");
+    if (eflags & X86_EFLAGS_PRIOR_TF) add_next_index_string(&statesar[1], "tf");
+    if (eflags & X86_EFLAGS_PRIOR_IF) add_next_index_string(&statesar[1], "if");
+    if (eflags & X86_EFLAGS_PRIOR_DF) add_next_index_string(&statesar[1], "df");
+    if (eflags & X86_EFLAGS_PRIOR_NT) add_next_index_string(&statesar[1], "nt");
+    if (eflags & X86_EFLAGS_RESET_OF) add_next_index_string(&statesar[2], "of");
+    if (eflags & X86_EFLAGS_RESET_CF) add_next_index_string(&statesar[2], "cf");
+    if (eflags & X86_EFLAGS_RESET_DF) add_next_index_string(&statesar[2], "df");
+    if (eflags & X86_EFLAGS_RESET_IF) add_next_index_string(&statesar[2], "if");
+    if (eflags & X86_EFLAGS_RESET_SF) add_next_index_string(&statesar[2], "sf");
+    if (eflags & X86_EFLAGS_RESET_AF) add_next_index_string(&statesar[2], "af");
+    if (eflags & X86_EFLAGS_RESET_TF) add_next_index_string(&statesar[2], "tf");
+    if (eflags & X86_EFLAGS_RESET_NT) add_next_index_string(&statesar[2], "nt");
+    if (eflags & X86_EFLAGS_RESET_PF) add_next_index_string(&statesar[2], "pf");
+    if (eflags & X86_EFLAGS_SET_CF) add_next_index_string(&statesar[3], "cf");
+    if (eflags & X86_EFLAGS_SET_DF) add_next_index_string(&statesar[3], "df");
+    if (eflags & X86_EFLAGS_SET_IF) add_next_index_string(&statesar[3], "if");
+    if (eflags & X86_EFLAGS_TEST_OF) add_next_index_string(&statesar[4], "of");
+    if (eflags & X86_EFLAGS_TEST_SF) add_next_index_string(&statesar[4], "sf");
+    if (eflags & X86_EFLAGS_TEST_ZF) add_next_index_string(&statesar[4], "zf");
+    if (eflags & X86_EFLAGS_TEST_PF) add_next_index_string(&statesar[4], "pf");
+    if (eflags & X86_EFLAGS_TEST_CF) add_next_index_string(&statesar[4], "cf");
+    if (eflags & X86_EFLAGS_TEST_NT) add_next_index_string(&statesar[4], "nt");
+    if (eflags & X86_EFLAGS_TEST_DF) add_next_index_string(&statesar[4], "df");
+    if (eflags & X86_EFLAGS_UNDEFINED_OF) add_next_index_string(&statesar[5], "of");
+    if (eflags & X86_EFLAGS_UNDEFINED_SF) add_next_index_string(&statesar[5], "sf");
+    if (eflags & X86_EFLAGS_UNDEFINED_ZF) add_next_index_string(&statesar[5], "zf");
+    if (eflags & X86_EFLAGS_UNDEFINED_PF) add_next_index_string(&statesar[5], "pf");
+    if (eflags & X86_EFLAGS_UNDEFINED_AF) add_next_index_string(&statesar[5], "af");
+    if (eflags & X86_EFLAGS_UNDEFINED_CF) add_next_index_string(&statesar[5], "cf");
+    add_property_zval(peflagsob, "modify", &statesar[0]);
+    add_property_zval(peflagsob, "prior", &statesar[1]);
+    add_property_zval(peflagsob, "reset", &statesar[2]);
+    add_property_zval(peflagsob, "set", &statesar[3]);
+    add_property_zval(peflagsob, "test", &statesar[4]);
+    add_property_zval(peflagsob, "undefined", &statesar[5]);
+}

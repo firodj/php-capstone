@@ -107,7 +107,7 @@ php_capstone *alloc_capstone_handle()
     return cs_handle;
 }
 
-void arch_detail_x86_op(php_capstone *cs_handle, zval *poperandsar, cs_x86_op *op)
+void arch_detail_x86_op(zval *poperandsar, cs_x86_op *op)
 {
     const char *name;
     zval opob, memob;
@@ -189,7 +189,7 @@ void arch_detail_x86_op(php_capstone *cs_handle, zval *poperandsar, cs_x86_op *o
     add_next_index_zval(poperandsar, &opob);
 }
 
-void arch_detail_x86(php_capstone *cs_handle, zval *pdetailob, cs_x86 *arch)
+void arch_detail_x86(zval *pdetailob, cs_x86 *arch)
 {
     int n, m;
     zval info, archob;
@@ -222,23 +222,20 @@ void arch_detail_x86(php_capstone *cs_handle, zval *pdetailob, cs_x86 *arch)
     add_property_long(&archob, "sib", arch->sib);
     add_property_long(&archob, "disp", arch->disp);
 
-    if ((cs_handle->mode & CS_MODE_16) == 0) {
+    name = php_capstone_x86_reg_name(arch->sib_index);
+    if (name) {
+        add_property_string(&archob, "sib_index", name);
+    } else {
+        add_property_long(&archob, "sib_index", arch->sib_index);
+    }
 
-        name = php_capstone_x86_reg_name(arch->sib_index);
-        if (name) {
-            add_property_string(&archob, "sib_index", name);
-        } else {
-            add_property_long(&archob, "sib_index", arch->sib_index);
-        }
+    add_property_long(&archob, "sib_scale", arch->sib_scale);
 
-        add_property_long(&archob, "sib_scale", arch->sib_scale);
-
-        name = php_capstone_x86_reg_name(arch->sib_base);
-        if (name) {
-            add_property_string(&archob, "sib_base", name);
-        } else {
-            add_property_long(&archob, "sib_base", arch->sib_base);
-        }
+    name = php_capstone_x86_reg_name(arch->sib_base);
+    if (name) {
+        add_property_string(&archob, "sib_base", name);
+    } else {
+        add_property_long(&archob, "sib_base", arch->sib_base);
     }
 
     name = php_capstone_x86_xop_cc_name(arch->xop_cc);
@@ -271,10 +268,14 @@ void arch_detail_x86(php_capstone *cs_handle, zval *pdetailob, cs_x86 *arch)
         add_property_long(&archob, "avx_rm", arch->avx_rm);
     }
 
+    object_init(&info);
+    php_capstone_x86_eflags(&info, arch->eflags);
+    add_property_zval(&archob, "eflags", &info);
+
     array_init(&info);
     for (n=0; n<arch->op_count; n++) {
         cs_x86_op *op = &arch->operands[n];
-        arch_detail_x86_op(cs_handle, &info, op);
+        arch_detail_x86_op(&info, op);
     }
     add_property_zval(&archob, "operands", &info);
 
@@ -397,7 +398,7 @@ PHP_FUNCTION(cs_disasm)
 
                 switch (cs_handle->arch) {
                     case CS_ARCH_X86:
-                        arch_detail_x86(cs_handle, &detailob, &ins->detail->x86);
+                        arch_detail_x86(&detailob, &ins->detail->x86);
                         break;
                     default:
                         break;
