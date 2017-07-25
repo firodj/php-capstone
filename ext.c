@@ -161,6 +161,7 @@ void arch_detail_x86_op(zval *poperandsar, cs_x86_op *op)
             add_property_long(&memob, "disp", op->mem.disp);
 
             add_property_zval(&opob, "mem", &memob);
+            zval_ptr_dtor(&memob);
             break;
         default:
             break;
@@ -176,6 +177,7 @@ void arch_detail_x86_op(zval *poperandsar, cs_x86_op *op)
       add_next_index_string(&memob, "write");
     }
     add_property_zval(&opob, "access", &memob);
+    zval_ptr_dtor(&memob);
 
     name = php_capstone_x86_avx_bcast_name(op->avx_bcast);
     if (name) {
@@ -208,6 +210,7 @@ void arch_detail_x86(zval *pdetailob, cs_x86 *arch)
         }
     }
     add_property_zval(&archob, "prefix", &info);
+    zval_ptr_dtor(&info);
 
     array_init(&info);
     for (m=4; m>1 && (!arch->opcode[m-1]); m--) ;
@@ -215,6 +218,7 @@ void arch_detail_x86(zval *pdetailob, cs_x86 *arch)
         add_next_index_long(&info, arch->opcode[n]);
     }
     add_property_zval(&archob, "opcode", &info);
+    zval_ptr_dtor(&info);
 
     add_property_long(&archob, "rex", arch->rex);
     add_property_long(&archob, "addr_size", arch->addr_size);
@@ -271,6 +275,7 @@ void arch_detail_x86(zval *pdetailob, cs_x86 *arch)
     object_init(&info);
     php_capstone_x86_eflags(&info, arch->eflags);
     add_property_zval(&archob, "eflags", &info);
+    zval_ptr_dtor(&info);
 
     array_init(&info);
     for (n=0; n<arch->op_count; n++) {
@@ -278,8 +283,10 @@ void arch_detail_x86(zval *pdetailob, cs_x86 *arch)
         arch_detail_x86_op(&info, op);
     }
     add_property_zval(&archob, "operands", &info);
+    zval_ptr_dtor(&info);
 
     add_property_zval(pdetailob, "x86", &archob);
+    zval_ptr_dtor(&archob);
 }
 
 PHP_FUNCTION(cs_open)
@@ -372,6 +379,7 @@ PHP_FUNCTION(cs_disasm)
                 add_next_index_long(&bytesar, ins->bytes[n]);
             }
             add_property_zval(&instob, "bytes", &bytesar);
+            zval_ptr_dtor(&bytesar);
 
             if (cs_handle->opt_detail) {
                 zval detailob, archob, regsar;
@@ -383,18 +391,21 @@ PHP_FUNCTION(cs_disasm)
                     add_next_index_string(&regsar, cs_reg_name(cs_handle->handle, ins->detail->regs_read[n]));
                 }
                 add_property_zval(&detailob, "regs_read", &regsar);
+                zval_ptr_dtor(&regsar);
 
                 array_init(&regsar);
                 for (n = 0; n < ins->detail->regs_write_count; n++) {
                     add_next_index_string(&regsar, cs_reg_name(cs_handle->handle, ins->detail->regs_write[n]));
                 }
                 add_property_zval(&detailob, "regs_write", &regsar);
+                zval_ptr_dtor(&regsar);
 
                 array_init(&regsar);
                 for (n = 0; n < ins->detail->groups_count; n++) {
                     add_next_index_string(&regsar, cs_group_name(cs_handle->handle, ins->detail->groups[n]));
                 }
                 add_property_zval(&detailob, "groups", &regsar);
+                zval_ptr_dtor(&regsar);
 
                 switch (cs_handle->arch) {
                     case CS_ARCH_X86:
@@ -405,6 +416,7 @@ PHP_FUNCTION(cs_disasm)
                 }
 
                 add_property_zval(&instob, "detail", &detailob);
+                zval_ptr_dtor(&detailob);
             }
 
             add_next_index_zval(return_value, &instob);
@@ -478,5 +490,5 @@ PHP_FUNCTION(cs_option)
 
 PHP_FUNCTION(cs_version)
 {
-    ZVAL_STRINGL(return_value, estrdup(PHP_CAPSTONE_VERSION), strlen(PHP_CAPSTONE_VERSION));
+    ZVAL_STRINGL(return_value, PHP_CAPSTONE_VERSION, strlen(PHP_CAPSTONE_VERSION));
 }

@@ -26,7 +26,7 @@ $SPARCV9_CODE = "\x81\xa8\x0a\x24\x89\xa0\x10\x20\x89\xa0\x1a\x60\x89\xa0\x00\xe
 $SYSZ_CODE    = "\xed\x00\x00\x00\x00\x1a\x5a\x0f\x1f\xff\xc2\x09\x80\x00\x00\x00\x07\xf7\xeb\x2a\xff\xff\x7f\x57\xe3\x01\xff\xff\x7f\x57\xeb\x00\xf0\x00\x00\x24\xb2\x4f\x00\x78";
 $XCORE_CODE   = "\xfe\x0f\xfe\x17\x13\x17\xc6\xfe\xec\x17\x97\xf8\xec\x4f\x1f\xfd\xec\x37\x07\xf2\x45\x5b\xf9\xfa\x02\x06\x1b\x10";
 
-require 'fixture.php';
+require 'fixture.inc';
 
 foreach($platforms as $platform) {
   printf("****************\n");
@@ -69,6 +69,7 @@ bytes:	0x08 0x01
 bytes:	0xd8 0x81 0xc6 0x34
 	size: 4
 	registers modified: fpsw
+	instructions groups: fpu
 0x1009:	adc		al, byte ptr [bx + si]
 bytes:	0x12 0x00
 	size: 2
@@ -327,10 +328,10 @@ bytes:	0x00 0xc7 0x48 0xd0
 Platform: MIPS-32R6 (Big-endian)
 Code: 0xec 0x80 0x00 0x19 0x7c 0x43 0x22 0xa0
 Disasm:
-0x1000:	swc3		$0, 0x19($a0)
+0x1000:	addiupc		$a0, 0x64
 bytes:	0xec 0x80 0x00 0x19
 	size: 4
-	instructions groups: stdenc notinmicromips
+	instructions groups: stdenc mips32r6
 0x1004:	align		$a0, $v0, $v1, 2
 bytes:	0x7c 0x43 0x22 0xa0
 	size: 4

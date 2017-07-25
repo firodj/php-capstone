@@ -27,7 +27,7 @@ $SPARCV9_CODE = "";
 $SYSZ_CODE    = "";
 $XCORE_CODE   = "";
 
-require 'fixture.php';
+require 'fixture.inc';
 
 foreach($platforms as $platform) {
     if ($platform[0] != CS_ARCH_X86) continue;
@@ -112,12 +112,15 @@ bytes:	0x08 0x01
 bytes:	0xd8 0x81 0xc6 0x34
 	size: 4
 	registers modified: fpsw
+	instructions groups: fpu
 	opcode: 0xd8
 	rex: 0x0
 	addr_size: 2
 	modrm: 0x81
 	disp: 0x34c6
 	eflags:
+		modify: cf
+		prior: sf af pf
 	op_count: 1
 		operands[0].type: mem
 			operands[0].mem.base: reg = bx
@@ -499,7 +502,7 @@ bytes:	0x41
 	modrm: 0x0
 	disp: 0x0
 	eflags:
-		modify: af zf pf
+		modify: af sf zf pf of
 	op_count: 1
 		operands[0].type: reg = ecx
 		operands[0].size: 4
@@ -690,7 +693,7 @@ bytes:	0x41
 	modrm: 0x0
 	disp: 0x0
 	eflags:
-		modify: af zf pf
+		modify: af sf zf pf of
 	op_count: 1
 		operands[0].type: reg = ecx
 		operands[0].size: 4

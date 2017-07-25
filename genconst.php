@@ -171,6 +171,7 @@ SCRIPT
 foreach($eflags_states as $idx=>$state) {
     fprintf($output, <<<SCRIPT
     add_property_zval(peflagsob, "$state", &statesar[$idx]);
+    zval_ptr_dtor(&statesar[$idx]);
 
 SCRIPT
     );
