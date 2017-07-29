@@ -13,6 +13,12 @@ $ cmake --build . --config Release
 $ cmake -G "Visual Studio 14 2015 Win64" ..
 ```
 
+### VC++ 2015 (SDK 7.1) using VC++ 2017 (SDK 8.1)
+
+The php build using `mc.exe` command which resides on 
+**C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\Bin**
+maybe install [Microsoft Visual C++ 2010 Service Pack 1 Compiler Update for the Windows SDK 7.1](http://www.microsoft.com/en-us/download/details.aspx?id=4422)
+
 ## Compile Capstone PHP on Windows:
 
 Resource:
@@ -69,9 +75,9 @@ The generated file will be in `.\Release_TS` and `.\x64\Relase_TS` for Win64.
 ### Testing:
 
 ```
-$ echo extension_dir=C:\php-sdk\phpdev\vc14\x86\php-7.0.14-src\Release_TS >> Release_TS\php.ini
+$ echo extension_dir=%cd%\Release_TS >> Release_TS\php.ini
 $ echo extension=php_capstone.dll >> Release_TS\php.ini
-$ nmake test TESTS=C:\php-exts\capstone\tests
+$ nmake test TESTS=C:\php-exts\php-capstone\tests
 ```
 
 ## Compile Capstone PHP on Linux/Mac:

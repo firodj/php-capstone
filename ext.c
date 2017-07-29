@@ -382,7 +382,7 @@ PHP_FUNCTION(cs_disasm)
             zval_ptr_dtor(&bytesar);
 
             if (cs_handle->opt_detail) {
-                zval detailob, archob, regsar;
+                zval detailob, regsar;
 
                 object_init(&detailob);
 
