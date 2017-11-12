@@ -140,25 +140,46 @@ void arch_detail_x86_op(zval *poperandsar, cs_x86_op *op)
             if (name) {
                 add_property_string(&memob, "segment", name);
             } else {
-                add_property_long(&memob, "segment", op->mem.segment);
+                if (op->mem.segment != X86_REG_INVALID) {
+                    add_property_long(&memob, "segment", op->mem.segment);
+                } else {
+                    add_property_null(&memob, "segment");
+                }
             }
 
             name = php_capstone_x86_reg_name(op->mem.base);
             if (name) {
                 add_property_string(&memob, "base", name);
             } else {
-                add_property_long(&memob, "base", op->mem.base);
+                if (op->mem.base != X86_REG_INVALID) {
+                    add_property_long(&memob, "base", op->mem.base);
+                } else {
+                    add_property_null(&memob, "base");
+                }
             }
 
             name = php_capstone_x86_reg_name(op->mem.index);
             if (name) {
                 add_property_string(&memob, "index", name);
             } else {
-                add_property_long(&memob, "index", op->mem.index);
+                if (op->mem.index != X86_REG_INVALID) {
+                    add_property_long(&memob, "index", op->mem.index);
+                } else {
+                    add_property_null(&memob, "index");
+                }
             }
 
-            add_property_long(&memob, "scale", op->mem.scale);
-            add_property_long(&memob, "disp", op->mem.disp);
+            if (op->mem.scale > 1) {
+                add_property_long(&memob, "scale", op->mem.scale);
+            } else {
+                add_property_null(&memob, "scale");
+            }
+
+            if (op->mem.disp != 0) {
+                add_property_long(&memob, "disp", op->mem.disp);
+            } else {
+                add_property_null(&memob, "disp");
+            }
 
             add_property_zval(&opob, "mem", &memob);
             zval_ptr_dtor(&memob);

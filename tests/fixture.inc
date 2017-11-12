@@ -30,7 +30,7 @@ $platforms = [
   ],
 
   // ARM
-  [ 
+  [
     CS_ARCH_ARM,
     CS_MODE_ARM,
     $ARM_CODE,
@@ -42,7 +42,7 @@ $platforms = [
     $THUMB_CODE2,
     "THUMB-2"
   ],
-  [ 
+  [
     CS_ARCH_ARM,
     CS_MODE_ARM,
     $ARM_CODE2,
@@ -249,9 +249,9 @@ function print_x86_detail($x86)
                     printf("\t\t\toperands[%u].mem.base: reg = %s\n", $i, $op->mem->base);
                 if ($op->mem->index)
                     printf("\t\t\toperands[%u].mem.index: reg = %s\n", $i, $op->mem->index);
-                if ($op->mem->scale != 1)
+                if ($op->mem->scale)
                     printf("\t\t\toperands[%u].mem.scale: %u\n", $i, $op->mem->scale);
-                if ($op->mem->disp != 0)
+                if ($op->mem->disp)
                     printf("\t\t\toperands[%u].mem.disp: 0x%x\n", $i, $op->mem->disp);
                 break;
             default:
