@@ -396,7 +396,6 @@ bytes:	0x8d 0x4c 0x32 0x08
 	sib: 0x32
 		sib_base: edx
 		sib_index: esi
-		sib_scale: 1
 	eflags:
 	op_count: 2
 		operands[0].type: mem
@@ -520,7 +519,6 @@ bytes:	0x8d 0x84 0x39 0x89 0x67 0x00 0x00
 	sib: 0x39
 		sib_base: ecx
 		sib_index: edi
-		sib_scale: 1
 	eflags:
 	op_count: 2
 		operands[0].type: mem
@@ -587,7 +585,6 @@ bytes:	0x8d 0x4c 0x32 0x08
 	sib: 0x32
 		sib_base: edx
 		sib_index: esi
-		sib_scale: 1
 	eflags:
 	op_count: 2
 		operands[0].type: reg = ecx
@@ -711,7 +708,6 @@ bytes:	0x8d 0x84 0x39 0x89 0x67 0x00 0x00
 	sib: 0x39
 		sib_base: ecx
 		sib_index: edi
-		sib_scale: 1
 	eflags:
 	op_count: 2
 		operands[0].type: reg = eax

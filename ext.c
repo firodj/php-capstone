@@ -204,7 +204,11 @@ void arch_detail_x86_op(zval *poperandsar, cs_x86_op *op)
     if (name) {
         add_property_string(&opob, "avx_bcast", name);
     } else {
-        add_property_long(&opob, "avx_bcast", op->avx_bcast);
+        if (op->avx_bcast != X86_AVX_BCAST_INVALID) {
+            add_property_long(&opob, "avx_bcast", op->avx_bcast);
+        } else {
+            add_property_null(&opob, "avx_bcast");
+        }
     }
 
     add_property_bool(&opob, "avx_zero_opmask", op->avx_zero_opmask);
@@ -241,47 +245,86 @@ void arch_detail_x86(zval *pdetailob, cs_x86 *arch)
     add_property_zval(&archob, "opcode", &info);
     zval_ptr_dtor(&info);
 
-    add_property_long(&archob, "rex", arch->rex);
+    if (arch->rex != 0) {
+        add_property_long(&archob, "rex", arch->rex);
+    } else {
+        add_property_null(&archob, "rex");
+    }
+
     add_property_long(&archob, "addr_size", arch->addr_size);
     add_property_long(&archob, "modrm", arch->modrm);
-    add_property_long(&archob, "sib", arch->sib);
-    add_property_long(&archob, "disp", arch->disp);
+
+    if (arch->sib != 0) {
+        add_property_long(&archob, "sib", arch->sib);
+    } else {
+        add_property_null(&archob, "sib");
+    }
+
+    if (arch->disp != 0) {
+        add_property_long(&archob, "disp", arch->disp);
+    } else {
+        add_property_null(&archob, "disp");
+    }
 
     name = php_capstone_x86_reg_name(arch->sib_index);
     if (name) {
         add_property_string(&archob, "sib_index", name);
     } else {
-        add_property_long(&archob, "sib_index", arch->sib_index);
+        if (arch->sib_index != X86_REG_INVALID) {
+            add_property_long(&archob, "sib_index", arch->sib_index);
+        } else {
+            add_property_null(&archob, "sib_index");
+        }
     }
 
-    add_property_long(&archob, "sib_scale", arch->sib_scale);
+    if (arch->sib_scale > 1) {
+        add_property_long(&archob, "sib_scale", arch->sib_scale);
+    } else {
+        add_property_null(&archob, "sib_scale");
+    }
 
     name = php_capstone_x86_reg_name(arch->sib_base);
     if (name) {
         add_property_string(&archob, "sib_base", name);
     } else {
-        add_property_long(&archob, "sib_base", arch->sib_base);
+        if (arch->sib_base != X86_REG_INVALID) {
+            add_property_long(&archob, "sib_base", arch->sib_base);
+        } else {
+            add_property_null(&archob, "sib_base");
+        }
     }
 
     name = php_capstone_x86_xop_cc_name(arch->xop_cc);
     if (name) {
         add_property_string(&archob, "xop_cc", name);
     } else {
-        add_property_long(&archob, "xop_cc", arch->xop_cc);
+        if (arch->xop_cc != X86_XOP_CC_INVALID) {
+            add_property_long(&archob, "xop_cc", arch->xop_cc);
+        } else {
+            add_property_null(&archob, "xop_cc");
+        }
     }
 
     name = php_capstone_x86_sse_cc_name(arch->sse_cc);
     if (name) {
         add_property_string(&archob, "sse_cc", name);
     } else {
-        add_property_long(&archob, "sse_cc", arch->sse_cc);
+        if (arch->sse_cc != X86_SSE_CC_INVALID) {
+            add_property_long(&archob, "sse_cc", arch->sse_cc);
+        } else {
+            add_property_null(&archob, "sse_cc");
+        }
     }
 
     name = php_capstone_x86_avx_cc_name(arch->avx_cc);
     if (name) {
         add_property_string(&archob, "avx_cc", name);
     } else {
-        add_property_long(&archob, "avx_cc", arch->avx_cc);
+        if (arch->avx_cc != X86_AVX_CC_INVALID) {
+            add_property_long(&archob, "avx_cc", arch->avx_cc);
+        } else {
+            add_property_null(&archob, "avx_cc");
+        }
     }
 
     add_property_bool(&archob, "avx_sae", arch->avx_sae);
@@ -290,7 +333,11 @@ void arch_detail_x86(zval *pdetailob, cs_x86 *arch)
     if (name) {
         add_property_string(&archob, "avx_rm", name);
     } else {
-        add_property_long(&archob, "avx_rm", arch->avx_rm);
+        if (arch->avx_rm != X86_AVX_RM_INVALID) {
+            add_property_long(&archob, "avx_rm", arch->avx_rm);
+        } else {
+            add_property_null(&archob, "avx_rm");
+        }
     }
 
     object_init(&info);
