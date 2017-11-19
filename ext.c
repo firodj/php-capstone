@@ -298,6 +298,11 @@ void arch_detail_x86(zval *pdetailob, cs_x86 *arch)
     add_property_zval(&archob, "eflags", &info);
     zval_ptr_dtor(&info);
 
+    object_init(&info);
+    php_capstone_x86_fpu_flags(&info, arch->fpu_flags);
+    add_property_zval(&archob, "fpu_flags", &info);
+    zval_ptr_dtor(&info);
+
     array_init(&info);
     for (n=0; n<arch->op_count; n++) {
         cs_x86_op *op = &arch->operands[n];

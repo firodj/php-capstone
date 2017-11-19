@@ -185,5 +185,57 @@ SCRIPT
 
 ///////
 
+$fpu_flags_states = ['modify', 'reset', 'set', 'undefined', 'test'];
+$max = count($fpu_flags_states);
+
+fprintf($header, "void php_capstone_x86_fpu_flags(zval*, uint64_t);\n");
+fprintf($output, <<<SCRIPT
+void php_capstone_x86_fpu_flags(zval *pfpu_flagsob, uint64_t fpu_flags)
+{
+    zval statesar[$max];
+
+SCRIPT
+);
+
+foreach($fpu_flags_states as $idx=>$state) {
+    fprintf($output, <<<SCRIPT
+    array_init(&statesar[$idx]); // $state
+
+SCRIPT
+    );
+}
+
+foreach(collect_defines('x86.h') as $name=>$value) {
+    if (preg_match('/^X86_FPU_FLAGS_([A-Z]+)_([A-Z0-9]+)/', $name, $match)) {
+        $flag = strtolower($match[2]);
+        $idx = array_search(strtolower($match[1]), $fpu_flags_states);
+
+        if ($idx === false) continue;
+
+        fprintf($output, <<<SCRIPT
+    if (fpu_flags & $name) add_next_index_string(&statesar[$idx], "fp$flag");
+
+SCRIPT
+        );
+    }
+}
+
+foreach($fpu_flags_states as $idx=>$state) {
+    fprintf($output, <<<SCRIPT
+    add_property_zval(pfpu_flagsob, "$state", &statesar[$idx]);
+    zval_ptr_dtor(&statesar[$idx]);
+
+SCRIPT
+    );
+}
+
+fprintf($output, <<<SCRIPT
+}
+
+SCRIPT
+);
+
+///////
+
 fclose($output);
 fclose($header);

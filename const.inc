@@ -10,3 +10,4 @@ const char *php_capstone_x86_avx_cc_name(x86_avx_cc);
 const char *php_capstone_x86_avx_rm_name(x86_avx_rm);
 const char *php_capstone_x86_prefix_name(x86_prefix);
 void php_capstone_x86_eflags(zval*, uint64_t);
+void php_capstone_x86_fpu_flags(zval*, uint64_t);

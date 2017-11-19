@@ -16,6 +16,7 @@ REGISTER_CAPSTONE_CONSTANT(CS_ARCH_SYSZ);
 REGISTER_CAPSTONE_CONSTANT(CS_ARCH_XCORE);
 REGISTER_CAPSTONE_CONSTANT(CS_ARCH_M68K);
 REGISTER_CAPSTONE_CONSTANT(CS_ARCH_TMS320C64X);
+REGISTER_CAPSTONE_CONSTANT(CS_ARCH_M680X);
 REGISTER_CAPSTONE_CONSTANT(CS_ARCH_MAX);
 REGISTER_CAPSTONE_CONSTANT(CS_ARCH_ALL);
 // }}} cs_arch
@@ -44,6 +45,16 @@ REGISTER_CAPSTONE_CONSTANT(CS_MODE_M68K_060);
 REGISTER_CAPSTONE_CONSTANT(CS_MODE_BIG_ENDIAN);
 REGISTER_CAPSTONE_CONSTANT(CS_MODE_MIPS32);
 REGISTER_CAPSTONE_CONSTANT(CS_MODE_MIPS64);
+REGISTER_CAPSTONE_CONSTANT(CS_MODE_M680X_6301);
+REGISTER_CAPSTONE_CONSTANT(CS_MODE_M680X_6309);
+REGISTER_CAPSTONE_CONSTANT(CS_MODE_M680X_6800);
+REGISTER_CAPSTONE_CONSTANT(CS_MODE_M680X_6801);
+REGISTER_CAPSTONE_CONSTANT(CS_MODE_M680X_6805);
+REGISTER_CAPSTONE_CONSTANT(CS_MODE_M680X_6808);
+REGISTER_CAPSTONE_CONSTANT(CS_MODE_M680X_6809);
+REGISTER_CAPSTONE_CONSTANT(CS_MODE_M680X_6811);
+REGISTER_CAPSTONE_CONSTANT(CS_MODE_M680X_CPU12);
+REGISTER_CAPSTONE_CONSTANT(CS_MODE_M680X_HCS08);
 // }}} cs_mode
 
 // {{{ cs_opt_type
@@ -90,6 +101,7 @@ REGISTER_CAPSTONE_CONSTANT(CS_GRP_RET);
 REGISTER_CAPSTONE_CONSTANT(CS_GRP_INT);
 REGISTER_CAPSTONE_CONSTANT(CS_GRP_IRET);
 REGISTER_CAPSTONE_CONSTANT(CS_GRP_PRIVILEGE);
+REGISTER_CAPSTONE_CONSTANT(CS_GRP_BRANCH_RELATIVE);
 // }}} cs_group_type
 
 // {{{ cs_err
@@ -559,4 +571,43 @@ void php_capstone_x86_eflags(zval *peflagsob, uint64_t eflags)
     zval_ptr_dtor(&statesar[4]);
     add_property_zval(peflagsob, "undefined", &statesar[5]);
     zval_ptr_dtor(&statesar[5]);
+}
+void php_capstone_x86_fpu_flags(zval *pfpu_flagsob, uint64_t fpu_flags)
+{
+    zval statesar[5];
+    array_init(&statesar[0]); // modify
+    array_init(&statesar[1]); // reset
+    array_init(&statesar[2]); // set
+    array_init(&statesar[3]); // undefined
+    array_init(&statesar[4]); // test
+    if (fpu_flags & X86_FPU_FLAGS_MODIFY_C0) add_next_index_string(&statesar[0], "fpc0");
+    if (fpu_flags & X86_FPU_FLAGS_MODIFY_C1) add_next_index_string(&statesar[0], "fpc1");
+    if (fpu_flags & X86_FPU_FLAGS_MODIFY_C2) add_next_index_string(&statesar[0], "fpc2");
+    if (fpu_flags & X86_FPU_FLAGS_MODIFY_C3) add_next_index_string(&statesar[0], "fpc3");
+    if (fpu_flags & X86_FPU_FLAGS_RESET_C0) add_next_index_string(&statesar[1], "fpc0");
+    if (fpu_flags & X86_FPU_FLAGS_RESET_C1) add_next_index_string(&statesar[1], "fpc1");
+    if (fpu_flags & X86_FPU_FLAGS_RESET_C2) add_next_index_string(&statesar[1], "fpc2");
+    if (fpu_flags & X86_FPU_FLAGS_RESET_C3) add_next_index_string(&statesar[1], "fpc3");
+    if (fpu_flags & X86_FPU_FLAGS_SET_C0) add_next_index_string(&statesar[2], "fpc0");
+    if (fpu_flags & X86_FPU_FLAGS_SET_C1) add_next_index_string(&statesar[2], "fpc1");
+    if (fpu_flags & X86_FPU_FLAGS_SET_C2) add_next_index_string(&statesar[2], "fpc2");
+    if (fpu_flags & X86_FPU_FLAGS_SET_C3) add_next_index_string(&statesar[2], "fpc3");
+    if (fpu_flags & X86_FPU_FLAGS_UNDEFINED_C0) add_next_index_string(&statesar[3], "fpc0");
+    if (fpu_flags & X86_FPU_FLAGS_UNDEFINED_C1) add_next_index_string(&statesar[3], "fpc1");
+    if (fpu_flags & X86_FPU_FLAGS_UNDEFINED_C2) add_next_index_string(&statesar[3], "fpc2");
+    if (fpu_flags & X86_FPU_FLAGS_UNDEFINED_C3) add_next_index_string(&statesar[3], "fpc3");
+    if (fpu_flags & X86_FPU_FLAGS_TEST_C0) add_next_index_string(&statesar[4], "fpc0");
+    if (fpu_flags & X86_FPU_FLAGS_TEST_C1) add_next_index_string(&statesar[4], "fpc1");
+    if (fpu_flags & X86_FPU_FLAGS_TEST_C2) add_next_index_string(&statesar[4], "fpc2");
+    if (fpu_flags & X86_FPU_FLAGS_TEST_C3) add_next_index_string(&statesar[4], "fpc3");
+    add_property_zval(pfpu_flagsob, "modify", &statesar[0]);
+    zval_ptr_dtor(&statesar[0]);
+    add_property_zval(pfpu_flagsob, "reset", &statesar[1]);
+    zval_ptr_dtor(&statesar[1]);
+    add_property_zval(pfpu_flagsob, "set", &statesar[2]);
+    zval_ptr_dtor(&statesar[2]);
+    add_property_zval(pfpu_flagsob, "undefined", &statesar[3]);
+    zval_ptr_dtor(&statesar[3]);
+    add_property_zval(pfpu_flagsob, "test", &statesar[4]);
+    zval_ptr_dtor(&statesar[4]);
 }
