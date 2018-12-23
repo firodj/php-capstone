@@ -63,6 +63,7 @@ foreach($platforms as $platform) {
 }
 --EXPECT--
 ****************
+****************
 Platform: X86 16bit (Intel syntax)
 Code: 0x8d 0x4c 0x32 0x08 0x01 0xd8 0x81 0xc6 0x34 0x12 0x00 0x00 0x05 0x23 0x01 0x00 0x00 0x36 0x8b 0x84 0x91 0x23 0x01 0x00 0x00 0x41 0x8d 0x84 0x39 0x89 0x67 0x00 0x00 0x8d 0x87 0x89 0x67 0x00 0x00 0xb4 0xc6
 Disasm:
@@ -88,7 +89,7 @@ bytes:	0x8d 0x4c 0x32
 0x1003:	or		byte ptr [bx + di], al
 bytes:	0x08 0x01
 	size: 2
-	registers modified: flags
+	Implicit registers modified: flags
 	opcode: 0x08
 	rex: 0x0
 	addr_size: 2
@@ -111,8 +112,8 @@ bytes:	0x08 0x01
 0x1005:	fadd		dword ptr [bx + di + 0x34c6]
 bytes:	0xd8 0x81 0xc6 0x34
 	size: 4
-	registers modified: fpsw
-	instructions groups: fpu
+	Implicit registers modified: fpsw
+	This instruction belongs to groups: fpu
 	opcode: 0xd8
 	rex: 0x0
 	addr_size: 2
@@ -132,8 +133,8 @@ bytes:	0xd8 0x81 0xc6 0x34
 0x1009:	adc		al, byte ptr [bx + si]
 bytes:	0x12 0x00
 	size: 2
-	registers read: flags
-	registers modified: flags
+	Implicit registers read: flags
+	Implicit registers modified: flags
 	opcode: 0x12
 	rex: 0x0
 	addr_size: 2
@@ -154,7 +155,7 @@ bytes:	0x12 0x00
 0x100b:	add		byte ptr [di], al
 bytes:	0x00 0x05
 	size: 2
-	registers modified: flags
+	Implicit registers modified: flags
 	opcode: 0x00
 	rex: 0x0
 	addr_size: 2
@@ -174,7 +175,7 @@ bytes:	0x00 0x05
 0x100d:	and		ax, word ptr [bx + di]
 bytes:	0x23 0x01
 	size: 2
-	registers modified: flags
+	Implicit registers modified: flags
 	opcode: 0x23
 	rex: 0x0
 	addr_size: 2
@@ -197,7 +198,7 @@ bytes:	0x23 0x01
 0x100f:	add		byte ptr [bx + si], al
 bytes:	0x00 0x00
 	size: 2
-	registers modified: flags
+	Implicit registers modified: flags
 	opcode: 0x00
 	rex: 0x0
 	addr_size: 2
@@ -239,7 +240,7 @@ bytes:	0x36 0x8b 0x84 0x91 0x23
 0x1016:	add		word ptr [bx + si], ax
 bytes:	0x01 0x00
 	size: 2
-	registers modified: flags
+	Implicit registers modified: flags
 	opcode: 0x01
 	rex: 0x0
 	addr_size: 2
@@ -260,7 +261,7 @@ bytes:	0x01 0x00
 0x1018:	add		byte ptr [bx + di - 0x73], al
 bytes:	0x00 0x41 0x8d
 	size: 3
-	registers modified: flags
+	Implicit registers modified: flags
 	opcode: 0x00
 	rex: 0x0
 	addr_size: 2
@@ -282,7 +283,7 @@ bytes:	0x00 0x41 0x8d
 0x101b:	test		byte ptr [bx + di], bh
 bytes:	0x84 0x39
 	size: 2
-	registers modified: flags
+	Implicit registers modified: flags
 	opcode: 0x84
 	rex: 0x0
 	addr_size: 2
@@ -323,7 +324,7 @@ bytes:	0x89 0x67 0x00
 0x1020:	add		byte ptr [di - 0x7679], cl
 bytes:	0x00 0x8d 0x87 0x89
 	size: 4
-	registers modified: flags
+	Implicit registers modified: flags
 	opcode: 0x00
 	rex: 0x0
 	addr_size: 2
@@ -344,7 +345,7 @@ bytes:	0x00 0x8d 0x87 0x89
 0x1024:	add		byte ptr [eax], al
 bytes:	0x67 0x00 0x00
 	size: 3
-	registers modified: flags
+	Implicit registers modified: flags
 	prefix: addrsize
 	opcode: 0x00
 	rex: 0x0
@@ -387,7 +388,7 @@ Disasm:
 0x1000:	leal		8(%edx, %esi), %ecx
 bytes:	0x8d 0x4c 0x32 0x08
 	size: 4
-	instructions groups: not64bitmode
+	This instruction belongs to groups: not64bitmode
 	opcode: 0x8d
 	rex: 0x0
 	addr_size: 4
@@ -411,7 +412,7 @@ bytes:	0x8d 0x4c 0x32 0x08
 0x1004:	addl		%ebx, %eax
 bytes:	0x01 0xd8
 	size: 2
-	registers modified: eflags
+	Implicit registers modified: eflags
 	opcode: 0x01
 	rex: 0x0
 	addr_size: 4
@@ -430,7 +431,7 @@ bytes:	0x01 0xd8
 0x1006:	addl		$0x1234, %esi
 bytes:	0x81 0xc6 0x34 0x12 0x00 0x00
 	size: 6
-	registers modified: eflags
+	Implicit registers modified: eflags
 	opcode: 0x81
 	rex: 0x0
 	addr_size: 4
@@ -448,7 +449,7 @@ bytes:	0x81 0xc6 0x34 0x12 0x00 0x00
 0x100c:	addl		$0x123, %eax
 bytes:	0x05 0x23 0x01 0x00 0x00
 	size: 5
-	registers modified: eflags
+	Implicit registers modified: eflags
 	opcode: 0x05
 	rex: 0x0
 	addr_size: 4
@@ -493,8 +494,8 @@ bytes:	0x36 0x8b 0x84 0x91 0x23 0x01 0x00 0x00
 0x1019:	incl		%ecx
 bytes:	0x41
 	size: 1
-	registers modified: eflags
-	instructions groups: not64bitmode
+	Implicit registers modified: eflags
+	This instruction belongs to groups: not64bitmode
 	opcode: 0x41
 	rex: 0x0
 	addr_size: 4
@@ -510,7 +511,7 @@ bytes:	0x41
 0x101a:	leal		0x6789(%ecx, %edi), %eax
 bytes:	0x8d 0x84 0x39 0x89 0x67 0x00 0x00
 	size: 7
-	instructions groups: not64bitmode
+	This instruction belongs to groups: not64bitmode
 	opcode: 0x8d
 	rex: 0x0
 	addr_size: 4
@@ -534,7 +535,7 @@ bytes:	0x8d 0x84 0x39 0x89 0x67 0x00 0x00
 0x1021:	leal		0x6789(%edi), %eax
 bytes:	0x8d 0x87 0x89 0x67 0x00 0x00
 	size: 6
-	instructions groups: not64bitmode
+	This instruction belongs to groups: not64bitmode
 	opcode: 0x8d
 	rex: 0x0
 	addr_size: 4
@@ -576,7 +577,7 @@ Disasm:
 0x1000:	lea		ecx, [edx + esi + 8]
 bytes:	0x8d 0x4c 0x32 0x08
 	size: 4
-	instructions groups: not64bitmode
+	This instruction belongs to groups: not64bitmode
 	opcode: 0x8d
 	rex: 0x0
 	addr_size: 4
@@ -600,7 +601,7 @@ bytes:	0x8d 0x4c 0x32 0x08
 0x1004:	add		eax, ebx
 bytes:	0x01 0xd8
 	size: 2
-	registers modified: eflags
+	Implicit registers modified: eflags
 	opcode: 0x01
 	rex: 0x0
 	addr_size: 4
@@ -619,7 +620,7 @@ bytes:	0x01 0xd8
 0x1006:	add		esi, 0x1234
 bytes:	0x81 0xc6 0x34 0x12 0x00 0x00
 	size: 6
-	registers modified: eflags
+	Implicit registers modified: eflags
 	opcode: 0x81
 	rex: 0x0
 	addr_size: 4
@@ -637,7 +638,7 @@ bytes:	0x81 0xc6 0x34 0x12 0x00 0x00
 0x100c:	add		eax, 0x123
 bytes:	0x05 0x23 0x01 0x00 0x00
 	size: 5
-	registers modified: eflags
+	Implicit registers modified: eflags
 	opcode: 0x05
 	rex: 0x0
 	addr_size: 4
@@ -682,8 +683,8 @@ bytes:	0x36 0x8b 0x84 0x91 0x23 0x01 0x00 0x00
 0x1019:	inc		ecx
 bytes:	0x41
 	size: 1
-	registers modified: eflags
-	instructions groups: not64bitmode
+	Implicit registers modified: eflags
+	This instruction belongs to groups: not64bitmode
 	opcode: 0x41
 	rex: 0x0
 	addr_size: 4
@@ -699,7 +700,7 @@ bytes:	0x41
 0x101a:	lea		eax, [ecx + edi + 0x6789]
 bytes:	0x8d 0x84 0x39 0x89 0x67 0x00 0x00
 	size: 7
-	instructions groups: not64bitmode
+	This instruction belongs to groups: not64bitmode
 	opcode: 0x8d
 	rex: 0x0
 	addr_size: 4
@@ -723,7 +724,7 @@ bytes:	0x8d 0x84 0x39 0x89 0x67 0x00 0x00
 0x1021:	lea		eax, [edi + 0x6789]
 bytes:	0x8d 0x87 0x89 0x67 0x00 0x00
 	size: 6
-	instructions groups: not64bitmode
+	This instruction belongs to groups: not64bitmode
 	opcode: 0x8d
 	rex: 0x0
 	addr_size: 4
@@ -765,9 +766,9 @@ Disasm:
 0x1000:	push		rbp
 bytes:	0x55
 	size: 1
-	registers read: rsp
-	registers modified: rsp
-	instructions groups: mode64
+	Implicit registers read: rsp
+	Implicit registers modified: rsp
+	This instruction belongs to groups: mode64
 	opcode: 0x55
 	rex: 0x0
 	addr_size: 8
@@ -801,7 +802,7 @@ bytes:	0x48 0x8b 0x05 0xb8 0x13 0x00 0x00
 0x1008:	vpcomtruew		xmm4, xmm3, xmm2
 bytes:	0x8f 0xe8 0x60 0xcd 0xe2 0x07
 	size: 6
-	instructions groups: xop
+	This instruction belongs to groups: xop
 	opcode: 0x8f 0xe8 0x60
 	rex: 0x40
 	addr_size: 8

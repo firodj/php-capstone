@@ -166,13 +166,13 @@ function print_ins($ins)
     printf("\tsize: %s\n", count($ins->bytes));
 
     if (count($ins->detail->regs_read)) {
-        printf("\tregisters read: %s\n", implode(" ", $ins->detail->regs_read));
+        printf("\tImplicit registers read: %s\n", implode(" ", $ins->detail->regs_read));
     }
     if (count($ins->detail->regs_write)) {
-        printf("\tregisters modified: %s\n", implode(" ", $ins->detail->regs_write));
+        printf("\tImplicit registers modified: %s\n", implode(" ", $ins->detail->regs_write));
     }
     if (count($ins->detail->groups)) {
-        printf("\tinstructions groups: %s\n",
+        printf("\tThis instruction belongs to groups: %s\n",
             implode(" ", $ins->detail->groups));
     }
 }

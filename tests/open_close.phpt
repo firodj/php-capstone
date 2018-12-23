@@ -16,7 +16,7 @@ printf("option:%d\n", $ok);
 $ok = cs_close($handle);
 printf("close:%d\n", $ok);
 --EXPECTF--
-version:4.0.0
+version:4.1.0
 support x86:1
 resource(%d) of type (Capstone)
 option:1
