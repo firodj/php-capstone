@@ -160,6 +160,7 @@ function print_ins($ins)
 {
     printf("0x%x:\t%s", $ins->address, $ins->mnemonic);
     if ($ins->op_str) printf("\t\t%s", $ins->op_str);
+    printf(" // insn-ID: %u, insn-mnem: %s", $ins->id, $ins->mnemonic);
     printf("\n");
 
     printf("bytes:\t%s\n", string_hex($ins->bytes));

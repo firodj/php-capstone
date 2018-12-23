@@ -446,6 +446,8 @@ PHP_FUNCTION(cs_disasm)
             add_property_long(&instob, "address", ins->address);
             add_property_string(&instob, "mnemonic", ins->mnemonic);
             add_property_string(&instob, "op_str", ins->op_str);
+            add_property_long(&instob, "id", ins->id);
+            // add_property_string(&instob, "name", cs_insn_name(cs_handle->handle, ins->id));
 
             array_init(&bytesar);
             for (n = 0; n < ins->size; n++) {
@@ -454,28 +456,34 @@ PHP_FUNCTION(cs_disasm)
             add_property_zval(&instob, "bytes", &bytesar);
             zval_ptr_dtor(&bytesar);
 
-            if (cs_handle->opt_detail) {
+            if (ins->detail) {
                 zval detailob, regsar;
 
                 object_init(&detailob);
 
                 array_init(&regsar);
                 for (n = 0; n < ins->detail->regs_read_count; n++) {
-                    add_next_index_string(&regsar, cs_reg_name(cs_handle->handle, ins->detail->regs_read[n]));
+                    const char *name = cs_reg_name(cs_handle->handle, ins->detail->regs_read[n]);
+                    if (name)
+                        add_next_index_string(&regsar, name);
                 }
                 add_property_zval(&detailob, "regs_read", &regsar);
                 zval_ptr_dtor(&regsar);
 
                 array_init(&regsar);
                 for (n = 0; n < ins->detail->regs_write_count; n++) {
-                    add_next_index_string(&regsar, cs_reg_name(cs_handle->handle, ins->detail->regs_write[n]));
+                    const char *name = cs_reg_name(cs_handle->handle, ins->detail->regs_write[n]);
+                    if (name)
+                        add_next_index_string(&regsar, name);
                 }
                 add_property_zval(&detailob, "regs_write", &regsar);
                 zval_ptr_dtor(&regsar);
 
                 array_init(&regsar);
                 for (n = 0; n < ins->detail->groups_count; n++) {
-                    add_next_index_string(&regsar, cs_group_name(cs_handle->handle, ins->detail->groups[n]));
+                    const char *name = cs_group_name(cs_handle->handle, ins->detail->groups[n]);
+                    if (name)
+                        add_next_index_string(&regsar, name);
                 }
                 add_property_zval(&detailob, "groups", &regsar);
                 zval_ptr_dtor(&regsar);
