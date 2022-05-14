@@ -1,6 +1,8 @@
 ## Compile Capstone:
 
 ```
+$ git submodule init
+$ git submodule update
 $ mkdir capstone/build
 $ cd capstone/build
 $ cmake ..
